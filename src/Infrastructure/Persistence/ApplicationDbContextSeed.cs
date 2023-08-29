@@ -1,4 +1,6 @@
 ﻿using Domain.Entities.GeneralModule;
+using Domain.Entities.LookupsModule;
+using Domain.Entities.PlansModule;
 using Domain.Entities.UsersModule;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +15,15 @@ public static class ApplicationDbContextSeed
         modelBuilder.Entity<Gender>().HasData(SeedData.Genders);
         modelBuilder.Entity<Country>().HasData(SeedData.Countries);
         modelBuilder.Entity<State>().HasData(SeedData.States);
-        modelBuilder.Entity<User>().HasData(SeedData.User);
+
+        modelBuilder.Entity<Day>().HasData(SeedData.Days);
+        modelBuilder.Entity<Carrier>().HasData(SeedData.Carriers);
+        modelBuilder.Entity<TimeSlot>().HasData(SeedData.TimeSlots);
         modelBuilder.Entity<AppSetting>().HasData(SeedData.AppSettings);
+
+        modelBuilder.Entity<Plan>().HasData(SeedData.Plans);
+        modelBuilder.Entity<PlanVariation>().HasData(SeedData.PlanVariations);
+
+        modelBuilder.Entity<User>().HasData(SeedData.Users);
     }
 }

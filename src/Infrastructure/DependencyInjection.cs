@@ -1,9 +1,7 @@
-﻿using Domain.ConfigurationOptions;
-using Domain.IContracts.IRepositories.IGenericRepositories;
+﻿using Domain.Abstractions.IRepositories.IGeneric;
+using Domain.ConfigurationOptions;
 using Infrastructure.DataAccess.GenericRepositories;
 using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure;

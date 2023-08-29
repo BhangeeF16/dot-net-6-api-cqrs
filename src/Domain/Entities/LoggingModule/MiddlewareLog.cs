@@ -8,6 +8,8 @@ namespace Domain.Entities.LoggingModule;
 [Table("MiddlewareLog")]
 public class MiddlewareLog
 {
+    public MiddlewareLog() { }
+
     public int ID { get; set; }
     [Required]
     [MaxLength(1000)]

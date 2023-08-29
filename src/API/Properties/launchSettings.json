@@ -6,7 +6,28 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_ENVIRONMENT": "Development"
+        "DOTNET_ENVIRONMENT": "Development",
+        "AZURE_TENANT_ID": "",
+        "AZURE_CLIENT_ID": "",
+        "AZURE_CLIENT_SECRET": "",
+        "AZURE_KEY_VAULT": "farmerspick-dev",
+        "AZURE_KEY_VAULT_SECRET_NAME": "app-settings"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7088;http://localhost:5088"
+    },
+    "API.Staging": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Staging",
+        "DOTNET_ENVIRONMENT": "Staging",
+        "AZURE_TENANT_ID": "",
+        "AZURE_CLIENT_ID": "",
+        "AZURE_CLIENT_SECRET": "",
+        "AZURE_KEY_VAULT": "farmerspick-staging",
+        "AZURE_KEY_VAULT_SECRET_NAME": "app-settings"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7088;http://localhost:5088"
@@ -17,7 +38,12 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production",
-        "DOTNET_ENVIRONMENT": "Production"
+        "DOTNET_ENVIRONMENT": "Production",
+        "AZURE_TENANT_ID": "",
+        "AZURE_CLIENT_ID": "",
+        "AZURE_CLIENT_SECRET": "",
+        "AZURE_KEY_VAULT": "farmerspick-production",
+        "AZURE_KEY_VAULT_SECRET_NAME": "app-settings"
       },
       "applicationUrl": "https://localhost:7088;http://localhost:5088"
     }

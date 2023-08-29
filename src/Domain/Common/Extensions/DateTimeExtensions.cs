@@ -4,19 +4,56 @@ namespace Domain.Common.Extensions
 {
     public static class DateTimeExtensions
     {
+        public static DateTime GetNearestDate(this DayOfWeek desiredDay, DateTime? targetDate = null)
+        {
+            targetDate = targetDate != null && targetDate.HasValue ? targetDate : DateTime.UtcNow.Date;
+            int diff = (7 + (targetDate.Value.DayOfWeek - desiredDay)) % 7;
+            return targetDate.Value.Date.AddDays(-diff);
+        }
         public static TimeSpan ToTimeSpan(this string HexaDecimalTimeStamp)
         {
             var timestamp = HexaDecimalTimeStamp.ToInt();
             return new TimeSpan(timestamp);
         }
+        public static DateTime? ToDateTime(this string dateTime)
+        {
+            if (string.IsNullOrEmpty(dateTime))
+            {
+                return null;
+            }
+
+            return DateTimeOffset.ParseExact(dateTime, new string[] { "MMM dd, yyyy", "dd/MM/yyyy", "d/M/yyyy", "dd-MM-yyyy", "d-M-yyyy", "yyyy-MM-ddTHH:mm:ssZ", "yyyy-MM-dd" }, CultureInfo.InvariantCulture).DateTime;
+            //try
+            //{
+            //}
+            //catch (Exception ex)
+            //{
+                //char formatChar = '-';
+                //if (dateTime.Contains('-'))
+                //{
+                //    formatChar = '-';
+                //}
+
+                //if (dateTime.Contains('/'))
+                //{
+                //    formatChar = '/';
+                //}
+
+                //string[] parts = dateTime.Split(formatChar);
+                //var month = parts[0].PadLeft(2, '0');
+                //var day = parts[1].PadLeft(2, '0');
+                //var year = parts[2];
+                //string properFormattedDate = $"{month}{formatChar}{day}{formatChar}{year}";
+
+                //return DateTimeOffset.ParseExact(properFormattedDate, new string[] { "MMM dd, yyyy", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy-MM-ddTHH:mm:ssZ", "yyyy-MM-dd" }, CultureInfo.InvariantCulture).DateTime;
+                //}
+            }
+        public static DateTime? ToDateTime(this long? timeStamp) => timeStamp != null && timeStamp > 0 ? new DateTime(1970, 1, 1).AddSeconds(timeStamp.Value).ToLocalTime() : null;
         public static DateTime? ToDateTime(this string dateTime, bool IsHexaDecimal = false)
         {
             if (!IsHexaDecimal)
             {
-                if (DateTimeOffset.TryParse(dateTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset result))
-                {
-                    return result.DateTime;
-                }
+                return dateTime.ToDateTime();
             }
             else
             {
@@ -24,14 +61,18 @@ namespace Domain.Common.Extensions
                 var hexDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                 return hexDateTime.AddSeconds(timestamp).ToLocalTime();
             }
-            return null;
         }
-        public static DateTime UtcToTimeZone(this DateTime dateTime, bool isSend = true, string TimeZoneID = "AUS Eastern Standard Time")
+        public static DateTime UtcToTimeZone(this DateTime UTCDateTime, string TimeZoneID = "AUS Eastern Standard Time")
         {
             var tz = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
             var timeDiff = tz.GetUtcOffset(DateTime.UtcNow);
-            dateTime = dateTime.AddHours((isSend ? -1 : 1) * timeDiff.TotalHours);
-            return dateTime;
+            UTCDateTime = UTCDateTime.AddHours(-1 * timeDiff.TotalHours);
+            return UTCDateTime;
+        }
+        public static TimeSpan GetOffsetOfTimeZone(string TimeZoneID = "AUS Eastern Standard Time")
+        {
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+            return tz.GetUtcOffset(DateTime.UtcNow);
         }
         public static DateTime UnixTimeStampToDateTime(this double unixTimeStamp)
         {

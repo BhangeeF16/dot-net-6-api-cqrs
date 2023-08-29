@@ -23,6 +23,7 @@ public static class ModuleExtensions
         {
             module.MapEndpoints(app);
         }
+
         return app;
     }
 

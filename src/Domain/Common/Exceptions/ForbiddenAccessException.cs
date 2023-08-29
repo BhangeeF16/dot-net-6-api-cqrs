@@ -1,6 +1,9 @@
-﻿namespace Domain.Common.Exceptions;
+﻿using System.Net;
 
-public class ForbiddenAccessException : Exception
+namespace Domain.Common.Exceptions;
+
+public class ForbiddenAccessException : ClientException
 {
-    public ForbiddenAccessException() : base() { }
+    public ForbiddenAccessException() : base(HttpStatusCode.Forbidden) { }
+    public ForbiddenAccessException(string message) : base(message, HttpStatusCode.Forbidden) { }
 }

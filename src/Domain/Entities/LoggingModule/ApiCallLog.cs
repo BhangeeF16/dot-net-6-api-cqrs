@@ -8,6 +8,8 @@ namespace Domain.Entities.LoggingModule;
 [Table("ApiCallLog")]
 public class ApiCallLog
 {
+    public ApiCallLog() { }
+
     public int ID { get; set; }
     [MaxLength(50)]
     public string EndPoint { get; set; }

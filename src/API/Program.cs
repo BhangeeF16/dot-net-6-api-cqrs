@@ -2,8 +2,15 @@ using API.Private.MinimalModule;
 using API.Private.Swagger;
 using Application;
 using Application.Pipeline.Middlewares;
+using Domain.Common.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Kestrel server options
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(30); // Set the request timeout (e.g., 5 minutes)
+});
 
 // Add services to the container.
 builder.Services.RegisterModules();
@@ -14,12 +21,12 @@ builder.Services.AddSwaggerOptions(builder.Environment);
 builder.Services.InjectDependencies(builder.Configuration, builder.Environment);
 builder.Services.AddHealthChecks();
 
-builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+builder.Services.AddCors(p => p.AddPolicy("corsapp", cors =>
 {
-    builder.WithOrigins("*")
-           .AllowAnyMethod()
-           .AllowAnyHeader()
-           .WithExposedHeaders("Content-Disposition", "Content-Type");
+    cors.WithOrigins(builder.Configuration.GetAllowedOrigins())
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .WithExposedHeaders("Content-Disposition", "Content-Type");
 }));
 
 var app = builder.Build();
@@ -41,8 +48,11 @@ app.UseAuthorization();
 app.UseMiddlewares();
 app.UseHealthChecks("/health");
 
-app.AddSwagger();
-app.MapSwaggerDoc();
+if (builder.Environment.IsDevelopment())
+{
+    app.UseSwaggerOptions();
+    app.MapSwaggerDoc();
+}
 
 app.MapEndpoints();
 

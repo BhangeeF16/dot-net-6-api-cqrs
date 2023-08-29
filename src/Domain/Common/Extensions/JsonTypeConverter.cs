@@ -3,6 +3,37 @@ using Newtonsoft.Json.Linq;
 
 namespace Domain.Common.Extensions
 {
+    public class DateTimeJsonConverter : JsonConverter
+    {
+        public DateTimeJsonConverter()
+        {
+
+        }
+
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            // implement in case you're serializing it back
+        }
+
+        //public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) => reader.Value is long ticks ? new DateTime(ticks) : Convert.ToDateTime(reader.Value);
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            DateTime date;
+            if (reader.Value is long ticks)
+            {
+                date = new DateTime(ticks);
+            }
+            else
+            {
+                date = Convert.ToDateTime(reader.Value);
+            }
+
+            return date;
+        }
+
+        public override bool CanConvert(Type objectType) => true;
+    }
+
     public sealed class JsonTypeConverter<TModel> : JsonConverter
     {
         public override bool CanConvert(Type objectType)

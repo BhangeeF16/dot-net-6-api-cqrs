@@ -1,5 +1,5 @@
-﻿using Domain.Entities.LoggingModule;
-using Domain.IContracts.IRepositories.IGenericRepositories;
+﻿using Domain.Abstractions.IRepositories.IGeneric;
+using Domain.Entities.LoggingModule;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Text;
@@ -9,10 +9,7 @@ namespace Application.Pipeline.Middlewares.Logging;
 public class RequestResponseLogging
 {
     private readonly RequestDelegate _next;
-    public RequestResponseLogging(RequestDelegate next)
-    {
-        _next = next;
-    }
+    public RequestResponseLogging(RequestDelegate next) => _next = next;
 
     //you can not inject it as a constructor parameter in Middleware because only Singleton services can be resolved by constructor injection in Middleware.
     public async Task Invoke(HttpContext context, IUnitOfWork unitOfWork)
@@ -39,7 +36,13 @@ public class RequestResponseLogging
 
             apiLog.ResponseAt = DateTime.Now;
 
-            if (!apiLog.Response.ToLower().Contains("healthy") || !apiLog.RequestURL.ToLower().Contains("swagger"))
+            if (
+                (apiLog.Response.IndexOf("healthy", StringComparison.InvariantCultureIgnoreCase) < 0)
+                &&
+                (apiLog.RequestURL.IndexOf("swagger", StringComparison.InvariantCultureIgnoreCase) < 0 && apiLog.RequestByURL.IndexOf("swagger", StringComparison.InvariantCultureIgnoreCase) < 0)
+                &&
+                (apiLog.RequestURL.IndexOf("hangfire", StringComparison.InvariantCultureIgnoreCase) < 0 && apiLog.RequestByURL.IndexOf("hangfire", StringComparison.InvariantCultureIgnoreCase) < 0)
+               )
             {
                 await unitOfWork.MiddlewareLogs.AddAsync(apiLog);
                 unitOfWork.Complete();

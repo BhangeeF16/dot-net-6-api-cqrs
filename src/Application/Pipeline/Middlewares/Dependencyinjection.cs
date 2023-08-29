@@ -8,6 +8,7 @@ public static class Dependencyinjection
     public static IApplicationBuilder UseMiddlewares(this IApplicationBuilder app)
     {
         app.UseMiddleware<RequestResponseLogging>();
+        //app.UseMiddleware<RequestTimeOutMiddleware>();
 
         return app;
     }

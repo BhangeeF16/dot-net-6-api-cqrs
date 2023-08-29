@@ -5,6 +5,22 @@ namespace Domain.Models.Pagination
 {
     public partial class Pagination
     {
+        public Pagination()
+        {
+            PageNumber = 1;
+            PageSize = 10;
+            SortDirection = "DESC";
+            SortingCol = "ID";
+        }
+
+        public Pagination(string sortCol, string sortDirection)
+        {
+            PageNumber = 1;
+            PageSize = 10;
+            SortDirection = sortDirection;
+            SortingCol = sortCol;
+        }
+
         public int? PageNumber { get; set; }
         public int? PageSize { get; set; }
         public string? SortingCol { get; set; }
@@ -25,14 +41,15 @@ namespace Domain.Models.Pagination
             pageNumber = pageNumber == 0 ? 1 : pageNumber;
             pageSize = pageSize == 0 ? 10 : pageSize;
 
-            var result = new Pagination
+            var result = new Pagination()
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize,
-                SortingCol = context.Request.Query[sortingColKey],
-                SortDirection = context.Request.Query[sortTypeKey],
                 Keyword = context.Request.Query[keywordKey]
             };
+
+            result.SortingCol = string.IsNullOrEmpty(context.Request.Query[sortingColKey]) ? result.SortingCol : context.Request.Query[sortingColKey];
+            result.SortDirection = string.IsNullOrEmpty(context.Request.Query[sortTypeKey]) ? result.SortDirection : context.Request.Query[sortTypeKey];
 
             return ValueTask.FromResult<Pagination?>(result);
         }

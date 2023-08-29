@@ -1,24 +1,11 @@
-﻿namespace Domain.Common.Exceptions;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
-public class NotFoundException : Exception
+namespace Domain.Common.Exceptions;
+
+public class NotFoundException : ClientException
 {
-    public NotFoundException()
-        : base()
-    {
-    }
-
-    public NotFoundException(string message)
-        : base(message)
-    {
-    }
-
-    public NotFoundException(string message, Exception innerException)
-        : base(message, innerException)
-    {
-    }
-
-    public NotFoundException(string name, object key)
-        : base($"Entity \"{name}\" ({key}) was not found.")
-    {
-    }
+    public NotFoundException() : base(HttpStatusCode.NotFound) { }
+    public NotFoundException(string message) : base(message, HttpStatusCode.NotFound) { }
+    public NotFoundException(string name, object key) : base($"Entity \"{name}\" ({key}) was not found.", HttpStatusCode.NotFound) { }
 }

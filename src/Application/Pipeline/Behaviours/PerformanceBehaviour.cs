@@ -1,4 +1,4 @@
-﻿using Domain.IContracts.IAuth;
+﻿using Domain.Abstractions.IAuth;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;

@@ -1,46 +1,25 @@
-﻿namespace Domain.Models.Auth
+﻿namespace Domain.Models.Auth;
+
+public class UserTokens
 {
-    public class UserTokens
+    public string? AccessToken
     {
-        public int? UserId
-        {
-            get;
-            set;
-        }
-        public string? RedirectUri
-        {
-            get;
-            set;
-        }
-        public string? UserName
-        {
-            get;
-            set;
-        }
-        public string? FullName
-        {
-            get;
-            set;
-        }
-        public int? RoleId
-        {
-            get;
-            set;
-        }
-        public string? Email
-        {
-            get;
-            set;
-        }
-        public string? Token
-        {
-            get;
-            set;
-        }
-        public DateTime ExpiryTime
-        {
-            get;
-            set;
-        }
+        get;
+        set;
+    }
+    public DateTime AccessTokenExpiryTime
+    {
+        get;
+        set;
+    }
+    public string? RefreshToken
+    {
+        get;
+        set;
+    }
+    public DateTime RefreshTokenExpiryTime
+    {
+        get;
+        set;
     }
 }

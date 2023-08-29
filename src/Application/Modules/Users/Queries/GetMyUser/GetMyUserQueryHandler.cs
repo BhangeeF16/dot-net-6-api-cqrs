@@ -1,88 +1,137 @@
-﻿using API.Chargebee.Services.Customers;
-using API.Chargebee.Services.Subscriptions;
+﻿using API.Chargebee.Abstractions;
+using API.FirstPromoter.Abstractions;
+using API.FirstPromoter.Models.Promoter;
 using Application.Common.Constants;
 using Application.Common.Extensions;
 using Application.Modules.Users.Models;
 using AutoMapper;
+using Domain.Abstractions.IAuth;
+using Domain.Abstractions.IRepositories.IGeneric;
+using Domain.Abstractions.IServices;
+using Domain.Common.Constants;
 using Domain.Common.Exceptions;
-using Domain.Common.Extensions;
-using Domain.Entities.UsersModule;
-using Domain.IContracts.IAuth;
-using Domain.IContracts.IRepositories.IGenericRepositories;
-using Domain.IContracts.IServices;
+using Domain.ConfigurationOptions;
 using MediatR;
 
 namespace Application.Modules.Users.Queries.GetMyUser;
 
 public class GetMyUserQueryHandler : IRequestHandler<GetMyUserQuery, UserDto>
 {
+    #region CONSTRUCTORS AND LOCALS
+
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IChargeBeeService _chargeBeeService;
+    private readonly ApplicationOptions _options;
+    private readonly IPromoterService _promoterService;
     private readonly ICustomerService _customerService;
-    private readonly ISubscriptionService _subscriptionService;
+    private readonly IChargeBeeService _chargeBeeService;
     private readonly ICurrentUserService _currentUserService;
-    public GetMyUserQueryHandler(ICurrentUserService currentUserService,
-                                 IChargeBeeService chargeBeeService,
+    private readonly ISubscriptionService _subscriptionService;
+    public GetMyUserQueryHandler(IMapper mapper,
                                  IUnitOfWork unitOfWork,
-                                 IMapper mapper,
+                                 ApplicationOptions options,
+                                 IPromoterService promoterService,
                                  ICustomerService customerService,
+                                 IChargeBeeService chargeBeeService,
+                                 ICurrentUserService currentUserService,
                                  ISubscriptionService subscriptionService)
     {
-        _currentUserService = currentUserService;
-        _chargeBeeService = chargeBeeService;
-        _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _options = options;
+        _unitOfWork = unitOfWork;
+        _promoterService = promoterService;
         _customerService = customerService;
+        _chargeBeeService = chargeBeeService;
+        _currentUserService = currentUserService;
         _subscriptionService = subscriptionService;
     }
+    
+    #endregion
+
     public async Task<UserDto> Handle(GetMyUserQuery request, CancellationToken cancellationToken)
     {
-        var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.ID == _currentUserService.ID && x.IsActive == true && x.IsDeleted == false, x => x.Role, x => x.Gender, x => x.State);
-        if (user is null)
+        var user = await _chargeBeeService.GetUserNoTrackingAsync(_currentUserService.Email);
+        if (!user.IsActive)
         {
-            user ??= await _chargeBeeService.CreateUserFromChargeBeeAsync(_currentUserService.Email);
-            if (user == null)
-            {
-                throw new ClientException("No User Found !", System.Net.HttpStatusCode.BadRequest);
-            }
+            throw new ClientException("Your account is temporarily suspended by admin. Please contact support !", System.Net.HttpStatusCode.BadRequest);
         }
 
         var userResponse = _mapper.Map<UserDto>(user);
 
-        if (user.fk_RoleID is not 1)
+        #region IF CUSTOMER
+
+        if (user.fk_RoleID is RoleLegend.CUSTOMER)
         {
+            #region CHARGEBEE
+
             var chargeBeeCustomer = _customerService.Get(user.ChargeBeeCustomerID, ChargeBeeCustomFieldKeys.Customer);
             var chargeBeeCustomerPaymentSource = _customerService.GetPaymentSource(user.ChargeBeeCustomerID);
             var currentShippingAddress = _subscriptionService.GetShippingAddress(_currentUserService.ChargeBeeSubscriptionID);
-            var currentBillingAddress = _customerService.GetBillingAddress(_currentUserService.ChargeBeeCustomerID);
+            var currentBillingAddress = chargeBeeCustomer.Billing;
 
-            userResponse.Shipping = new UserAddress
+            if (currentShippingAddress is not null) userResponse.Shipping = _mapper.Map<UserAddress>(currentShippingAddress);
+            if (currentBillingAddress is not null) userResponse.Billing = _mapper.Map<UserAddress>(currentBillingAddress);
+            if (chargeBeeCustomerPaymentSource is not null) userResponse.PaymentSource = _mapper.Map<UserPaymentSource>(chargeBeeCustomerPaymentSource);
+
+            #endregion
+
+            #region FIRST PROMOTER
+
+            if (string.IsNullOrEmpty(user.FirstPromoterID))
             {
-                PhoneNumber = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_shipping_phone", currentShippingAddress.PhoneNumber),
-                Line1 = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_shipping_address_line_1", currentShippingAddress.ExtendedAddr),
-                Line2 = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_shipping_address_line_2", currentShippingAddress.ExtendedAddr2),
-                City = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_shipping_city", currentShippingAddress.City),
-                PostCode = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_shipping_zip", currentShippingAddress.Zip),
-                State = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_shipping_state", currentShippingAddress.State),
-                Country = "Australia",
-            };
-            userResponse.Billing = new UserAddress
+                var promoter = _promoterService.Create(new CreatePromoter()
+                {
+                    Email = user?.Email,
+                    FirstName = user?.FirstName,
+                    LastName = user?.LastName,
+                    CustomerID = user?.ChargeBeeCustomerID,
+                    CampaignID = "18912", // compaign name = Referral
+                    SkipEmailNotification = true,
+                });
+
+                user.FirstPromoterID = promoter.ID.ToString();
+                user.FirstPromoterAuthToken = promoter.AuthToken;
+                user.FirstPromoterReferralID = promoter.DefaultRefID;
+            }
+
+            user.FirstPromoterAuthToken = _promoterService.ResetAuthToken(new ResetPromoterToken
             {
-                PhoneNumber = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_billing_phone", currentBillingAddress.PhoneNumber),
-                Line1 = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_billing_address_line_1", currentBillingAddress.ExtendedAddr),
-                Line2 = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_billing_address_line_2", currentBillingAddress.ExtendedAddr2),
-                City = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_billing_city", currentBillingAddress.City),
-                PostCode = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_billing_zip", currentBillingAddress.Zip),
-                State = chargeBeeCustomer.CustomFields.GetCustomValue("cf_next_billing_state", currentBillingAddress.State),
-                Country = "Australia",
-            };
-            userResponse.PaymentSource = new UserPaymentSource
+                ID = user?.FirstPromoterID,
+                CustomerID = user?.ChargeBeeCustomerID,
+                AuthToken = user?.FirstPromoterAuthToken,
+            }).AuthToken;
+
+            if (string.IsNullOrEmpty(userResponse.FirstPromoterID)) userResponse.FirstPromoterID = user.FirstPromoterID;
+            if (string.IsNullOrEmpty(userResponse.FirstPromoterAuthToken)) userResponse.FirstPromoterAuthToken = user.FirstPromoterAuthToken;
+
+            userResponse.FirstPromoterReferralUrl = $"{_options.RegistrationUrl}?fp_ref={user.FirstPromoterReferralID}";
+
+            #endregion
+
+            user.PhoneNumber = user.PhoneNumber.FormatPhoneNumber();
+            user.Role = null;
+            user.Gender = null;
+            _unitOfWork.Users.Update(user);
+            _unitOfWork.Complete();
+        }
+
+        #endregion
+
+        #region IMPERSONATION
+
+        if (!_currentUserService.LoggedInAs(RoleLegend.CUSTOMER) && _currentUserService.RoleIs(RoleLegend.CUSTOMER))
+        {
+            var impersonatorUser = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.ID == _currentUserService.LoggedInUser && x.fk_RoleID == _currentUserService.LoggedInUserRole && !x.IsDeleted);
+            userResponse.Impersonator = new UserImpersonatorDto(impersonatorUser is not null)
             {
-                Last4 = chargeBeeCustomerPaymentSource.Last4,
-                Brand = (chargeBeeCustomerPaymentSource.Brand ?? API.Chargebee.Common.PaymentSourceBrand.UnKnown).GetDescription()
+                FirstName = impersonatorUser!.FirstName,
+                LastName = impersonatorUser!.LastName,
+                Email = impersonatorUser!.Email,
+                fk_RoleID = impersonatorUser!.fk_RoleID
             };
         }
+
+        #endregion
 
         return userResponse;
     }

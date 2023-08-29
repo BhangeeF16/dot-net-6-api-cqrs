@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace API.Private.MinimalModule;
-
 public static class MinimalAttributeExtensions
 {
     public static RouteHandlerBuilder AllowAnonymous(this RouteHandlerBuilder endpoint)

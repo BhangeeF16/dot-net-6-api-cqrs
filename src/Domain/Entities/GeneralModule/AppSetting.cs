@@ -8,6 +8,8 @@ namespace Domain.Entities.GeneralModule;
 [Table("AppSetting")]
 public class AppSetting : BaseEntity
 {
+    public AppSetting() : base() { }
+
     [Key]
     public int ID { get; set; }
     [Required]

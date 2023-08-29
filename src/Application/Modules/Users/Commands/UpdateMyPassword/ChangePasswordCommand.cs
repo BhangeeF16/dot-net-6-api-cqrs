@@ -9,14 +9,15 @@ namespace Application.Modules.Users.Commands.UpdateMyPassword
         public string? OldPassword { get; set; }
         public string? NewPassword { get; set; }
         public string? ConfirmNewPassword { get; set; }
-    }
-    public class CreateChangePasswordRequestValidator : AbstractValidator<ChangePasswordCommand>
-    {
-        public CreateChangePasswordRequestValidator()
+        
+        public class Validator : AbstractValidator<ChangePasswordCommand>
         {
-            RuleFor(c => c.NewPassword).ValidateProperty();
-            RuleFor(c => c.ConfirmNewPassword).ValidateProperty();
-            RuleFor(c => c.OldPassword).ValidateProperty();
+            public Validator()
+            {
+                RuleFor(c => c.NewPassword).ValidateProperty();
+                RuleFor(c => c.ConfirmNewPassword).ValidateProperty();
+                RuleFor(c => c.OldPassword).ValidateProperty();
+            }
         }
     }
 }

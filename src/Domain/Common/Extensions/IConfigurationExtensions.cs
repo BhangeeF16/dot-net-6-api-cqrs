@@ -8,9 +8,17 @@ public static class IConfigurationExtensions
     {
         return configuration.GetSetting("SQLSERVER_CON_STR", "ConnectionStrings");
     }
-    private static string GetSetting(this IConfiguration config, string Key, string Section = "")
+    public static string GetSetting(this IConfiguration config, string Key, string Section = "")
     {
         var colonSpaceHolder = Section != null || Section != string.Empty ? ":" : string.Empty;
         return config[$"{Section}{colonSpaceHolder}{Key}"];
+    }
+    public static string[] GetAllowedOrigins(this IConfiguration configuration)
+    {
+        return configuration.GetSection("Settings:AllowedOrigins").Get<List<string>>().ToArray();
+    }
+    public static List<string> GetAPIKeys(this IConfiguration configuration)
+    {
+        return configuration.GetSection("APIKeys").Get<List<string>>();
     }
 }

@@ -2,12 +2,17 @@
 
 namespace Domain.Entities.GeneralModule
 {
-    public class BaseEntity
+    public abstract class BaseEntity : AuditableEntity
     {
-        public DateTime? CreatedAt { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? ModifiedAt { get; set; }
-        public int? ModifiedBy { get; set; }
+        public BaseEntity() : base() => (IsActive, IsDeleted) = (true, false);
+
+        public void DeActivateAndDelete() => (IsActive, IsDeleted) = (false, true);
+        public void ActivateAndRestore() => (IsActive, IsDeleted) = (true, false);
+        public void Activate() => IsActive = true;
+        public void DeActivate() => IsActive = false;
+        public void Delete() => IsDeleted = true;
+        public void Restore() => IsDeleted = false;
+
         [DefaultValue(true)]
         public bool IsActive { get; set; } = true;
         [DefaultValue(false)]

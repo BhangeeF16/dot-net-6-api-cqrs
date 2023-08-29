@@ -1,7 +1,9 @@
 ﻿namespace Domain.Entities.GeneralModule;
 
-public class AuditableEntity
+public abstract class AuditableEntity
 {
+    public AuditableEntity() { }
+
     public int? CreatedBy { get; set; }
     public DateTime? CreatedAt { get; set; }
 

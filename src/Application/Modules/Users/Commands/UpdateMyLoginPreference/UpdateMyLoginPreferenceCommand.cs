@@ -8,12 +8,10 @@ namespace Application.Modules.Users.Commands.UpdateMyLoginPreference
     {
         public bool IsOtpLogin { get; set; }
         public string? Password { get; set; }
-    }
-    public class UpdateMyLoginPreferenceCommandValidator : AbstractValidator<UpdateMyLoginPreferenceCommand>
-    {
-        public UpdateMyLoginPreferenceCommandValidator()
+
+        public class Validator : AbstractValidator<UpdateMyLoginPreferenceCommand>
         {
-            RuleFor(c => c.IsOtpLogin).ValidateNotNullProperty();
+            public Validator() => RuleFor(c => c.IsOtpLogin).ValidateNotNullProperty();
         }
     }
 }

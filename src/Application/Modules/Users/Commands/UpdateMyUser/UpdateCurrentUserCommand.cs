@@ -45,9 +45,9 @@ namespace Application.Modules.Users.Commands.UpdateMyUser
 
             return ValueTask.FromResult<UpdateCurrentUserCommand?>(result);
         }
-        public class UpdateUserProfileRequestValidator : AbstractValidator<UpdateCurrentUserCommand>
+        public class Validator : AbstractValidator<UpdateCurrentUserCommand>
         {
-            public UpdateUserProfileRequestValidator()
+            public Validator()
             {
                 RuleFor(c => c.FirstName).ValidateProperty();
                 RuleFor(c => c.LastName).ValidateProperty();

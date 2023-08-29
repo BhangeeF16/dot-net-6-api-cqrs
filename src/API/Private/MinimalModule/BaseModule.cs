@@ -66,7 +66,9 @@ namespace API.Private.MinimalModule
                     case HttpStatusCode.NotModified:
                         response = Results.Conflict(ErrorModel);
                         break;
-
+                    case HttpStatusCode.MethodNotAllowed:
+                        response = Results.Extensions.MethodNotAllowed(ErrorModel);
+                        break;
                     default:
                         response = Results.Extensions.InternalServerProblem(ErrorModel);
                         break;
@@ -82,7 +84,7 @@ namespace API.Private.MinimalModule
                         ExceptionMessage = ex.InnerException?.Message,
                         ExceptionMessageDetail = ex.InnerException?.Message,
                         ReferenceErrorCode = ex.HResult.ToString(),
-                        ValidationErrors = (ex.InnerException as ValidationException)?.Errors
+                        ValidationErrors = ex.Errors
                     },
                     InternalResults = null,
                     StatusCode = HttpStatusCode.BadRequest,
@@ -162,7 +164,6 @@ namespace API.Private.MinimalModule
                     Result = new ErrorDetailResponseModel()
                     {
                         ExceptionMessage = customEx?.Message,
-                        //StackTrace = customEx?.StackTrace,
                         ExceptionMessageDetail = customEx?.InnerException?.Message,
                         ReferenceErrorCode = customEx?.HResult.ToString(),
                         ValidationErrors = null
@@ -184,7 +185,9 @@ namespace API.Private.MinimalModule
                     case HttpStatusCode.NotModified:
                         response = Results.Conflict(ErrorModel);
                         break;
-
+                    case HttpStatusCode.MethodNotAllowed:
+                        response = Results.Extensions.MethodNotAllowed(ErrorModel);
+                        break;
                     default:
                         response = Results.Extensions.InternalServerProblem(ErrorModel);
                         break;
@@ -200,7 +203,7 @@ namespace API.Private.MinimalModule
                         ExceptionMessage = ex.InnerException?.Message,
                         ExceptionMessageDetail = ex.InnerException?.Message,
                         ReferenceErrorCode = ex.HResult.ToString(),
-                        ValidationErrors = (ex.InnerException as ValidationException)?.Errors
+                        ValidationErrors = ex.Errors
                     },
                     InternalResults = null,
                     StatusCode = HttpStatusCode.BadRequest,
@@ -268,6 +271,17 @@ namespace API.Private.MinimalModule
             return Results.Problem(new ProblemDetails()
             {
                 Status = 401,
+                Title = errorResponseModel?.Message,
+                Detail = errorResponseModel?.Result?.ExceptionMessage,
+                Instance = errorResponseModel?.Result?.ReferenceErrorCode,
+                Type = errorResponseModel?.Result?.ReferenceErrorCode,
+            });
+        }
+        public static IResult MethodNotAllowed(this IResultExtensions resultExtensions, ErrorResponseModel errorResponseModel)
+        {
+            return Results.Problem(new ProblemDetails()
+            {
+                Status = 405,
                 Title = errorResponseModel?.Message,
                 Detail = errorResponseModel?.Result?.ExceptionMessage,
                 Instance = errorResponseModel?.Result?.ReferenceErrorCode,

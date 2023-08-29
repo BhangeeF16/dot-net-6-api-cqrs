@@ -11,10 +11,6 @@ public abstract class HasDomainEventEntity : IHasDomainEventEntity
     [NotMapped]
     public IProducerConsumerCollection<IDomainEvent> DomainEvents => _domainEvents;
 
-    protected void PublishEvent(IDomainEvent @event)
-    {
-        _domainEvents.Enqueue(@event);
-    }
-
     protected static Guid NewIdGuid() => Guid.NewGuid();
+    protected void PublishEvent(IDomainEvent @event) => _domainEvents.Enqueue(@event);
 }

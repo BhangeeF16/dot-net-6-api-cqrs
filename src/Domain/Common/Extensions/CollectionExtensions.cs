@@ -1,13 +1,17 @@
 ﻿using Domain.Common.Exceptions;
 using ExcelDataReader;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Data;
-using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace Domain.Common.Extensions
 {
+
     public static class CollectionExtensions
     {
         public static List<T> GetListWhere<T>(Func<T, bool> predicate, params T[] entities)
@@ -58,22 +62,36 @@ namespace Domain.Common.Extensions
             DataSet ds = reader.AsDataSet();
             reader.Close();
 
-            return ds.Tables[0].BindList<T>();
+            return ds.Tables[0].BindList<T>(true);
         }
-        public static List<T> BindList<T>(this DataTable dataTable) where T : class
+        public static List<T> BindList<T>(this DataTable dataTable, bool ValidateJson = false) where T : class
         {
             for (int i = 0; i < dataTable.Columns.Count; i++)
             {
-                dataTable.Columns[i].ColumnName = (string)dataTable.Rows[0][i];
+                dataTable.Columns[i].ColumnName = string.IsNullOrEmpty(dataTable.Rows[0][i].ToString()) ? $"Colunm{i}" : dataTable.Rows[0][i].ToString();
             }
             dataTable.Rows.RemoveAt(0);
+
             var serializeString = JsonConvert.SerializeObject(dataTable);
             var result = JsonConvert.DeserializeObject<List<T>>(serializeString);
+
+            if (ValidateJson)
+            {
+                if (result.ValidateSchema<List<T>>(true))
+                {
+                    return result;
+                }
+                else
+                {
+                    throw new ClientException("The excel file format is not matching with the provided format, please try again with correct format");
+                }
+            }
+
             return result;
         }
-        public static bool ContainsDuplicate<T>(this IEnumerable<T> enumerable)
+        public static bool ContainsDuplicate<T>(this IEnumerable<T> enumerable, IEqualityComparer<T> comparer = null)
         {
-            HashSet<T> knownElements = new();
+            HashSet<T> knownElements = new(comparer);
             foreach (T element in enumerable)
             {
                 if (!knownElements.Add(element))

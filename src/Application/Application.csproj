@@ -7,23 +7,31 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="12.0.1" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
-    <PackageReference Include="MediatR" Version="11.1.0" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageReference Include="AutoMapper" Version="12.0.1">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="MediatR" Version="12.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
     <PackageReference Include="NPOI" Version="2.6.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\azure\AZURE.Blob\AZURE.Blob.csproj" />
+    <ProjectReference Include="..\..\azure\AZURE.KeyVault\AZURE.KeyVault.csproj" />
+    <ProjectReference Include="..\..\sdk\API.Chargebee\API.Chargebee.csproj" />
+    <ProjectReference Include="..\..\sdk\API.CIN7\API.CIN7.csproj" />
+    <ProjectReference Include="..\..\sdk\API.FirstPromoter\API.FirstPromoter.csproj" />
+    <ProjectReference Include="..\..\sdk\API.HDS\API.HDS.csproj" />
+    <ProjectReference Include="..\..\sdk\API.Klaviyo\API.Klaviyo.csproj" />
+    <ProjectReference Include="..\..\sdk\API.Twilio\API.Twilio.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\Utilities\Utilities.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Common\Constants\" />
-    <Folder Include="Common\Extensions\" />
   </ItemGroup>
 
 </Project>

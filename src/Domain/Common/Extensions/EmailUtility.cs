@@ -19,7 +19,7 @@ namespace Domain.Common.Extensions
                     mail.Body = messsage;
                     mail.IsBodyHtml = true;
 
-                    using (SmtpClient smtp = new SmtpClient(appSettings.FirstOrDefault(c => c.Name == "SmtpClient")?.Value, Convert.ToInt32(appSettings.FirstOrDefault(c => c.Name == "SmtpPort")?.Value)))
+                    using (SmtpClient smtp = new (appSettings.FirstOrDefault(c => c.Name == "SmtpClient")?.Value, Convert.ToInt32(appSettings.FirstOrDefault(c => c.Name == "SmtpPort")?.Value)))
                     {
                         smtp.Credentials = new NetworkCredential(appSettings.FirstOrDefault(c => c.Name == "SmtpUser")?.Value, appSettings.FirstOrDefault(c => c.Name == "SmtpPassword")?.Value);
                         smtp.EnableSsl = true;

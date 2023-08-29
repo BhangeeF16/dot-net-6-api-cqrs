@@ -13,13 +13,29 @@ namespace API.Private.Swagger
                 return;
             }
 
-            operation.Security = new List<OpenApiSecurityRequirement>
+            var authorize = context.ApiDescription.ActionDescriptor.EndpointMetadata.OfType<AuthorizeAttribute>().FirstOrDefault();
+
+            if (authorize == null || string.IsNullOrEmpty(authorize.AuthenticationSchemes))
             {
-                new OpenApiSecurityRequirement
+                return;
+            }
+
+            var schemes = authorize.AuthenticationSchemes.Split(',').Distinct().Select(x => x.Trim()).ToList();
+            var OpenApiSecurityRequirements = schemes.Select(x => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecurityScheme
                 {
-                    [new OpenApiSecurityScheme { Reference = new OpenApiReference{ Type = ReferenceType.SecurityScheme, Id = "Bearer" } }] = new List<string>()
-                }
-            };
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = x
+                    },
+                    In = ParameterLocation.Header,
+                }] = new List<string>(),
+            }
+            ).ToList();
+
+            operation.Security = OpenApiSecurityRequirements;
         }
     }
 }

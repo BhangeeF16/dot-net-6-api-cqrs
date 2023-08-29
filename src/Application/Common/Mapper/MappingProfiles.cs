@@ -7,28 +7,27 @@ public class MappingProfiles : Profile
 {
     public MappingProfiles()
     {
-        ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
-
-        // you can add more mappings here
-        // dll or assembly dependent models must be added here
-        // using ImapFrom is recommended
+        ApplyMappingsFromAssemblies(Assembly.GetExecutingAssembly());
     }
-    private void ApplyMappingsFromAssembly(Assembly assembly)
+    private void ApplyMappingsFromAssemblies(params Assembly[] assemblies)
     {
-        var types = assembly.GetExportedTypes()
-        .Where(t => t.GetInterfaces()
-        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMapFrom<>)))
-        .ToList();
-
-        foreach (var type in types)
+        if (assemblies != null && assemblies.Any())
         {
-            var instance = Activator.CreateInstance(type);
+            var types = assemblies.SelectMany(x => x.GetExportedTypes())
+                                  .Where(t => t.GetInterfaces()
+                                  .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMapFrom<>)))
+                                  .ToList();
 
-            var methodInfo = type.GetMethod("Mapping")
-                ?? type.GetInterface("IMapFrom`1").GetMethod("Mapping");
+            foreach (var type in types)
+            {
+                var instance = Activator.CreateInstance(type);
 
-            methodInfo?.Invoke(instance, new object[] { this });
+                var methodInfo = type.GetMethod("Mapping")
+                    ?? type.GetInterface("IMapFrom`1").GetMethod("Mapping");
 
+                methodInfo?.Invoke(instance, new object[] { this });
+
+            }
         }
     }
 }

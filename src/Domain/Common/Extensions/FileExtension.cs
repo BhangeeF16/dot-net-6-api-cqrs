@@ -2,9 +2,14 @@
 {
     public class FileExtensions
     {
-        public static string GetExcelFileTemplate(string TemplateName)
+        public static string GetExcelFileTemplate(string TemplateName, string extension = ".xlsx")
         {
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Common\Templates\ExcelTemplates\{TemplateName}.xlsx");
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Common\Templates\ExcelTemplates\{TemplateName}{extension}");
+        }
+        public static string GetEmailTemplate(string TemplateName, string extension = ".html")
+        {
+            var emailTemplate = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Common\Templates\EmailTemplates\{TemplateName}{extension}");
+            return File.ReadAllText(emailTemplate);
         }
         public static string GetStoredProcedureQuery(string StoredProcedureName)
         {
