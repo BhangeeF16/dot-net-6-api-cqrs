@@ -1,21 +1,14 @@
 ﻿using API.Private.MinimalModule;
 using Application.Common.Constants;
-using Application.Modules.Users.Commands.AddAbandonedCartMember;
 using Application.Modules.Users.Commands.ForgetPassword;
 using Application.Modules.Users.Commands.ImpersonateUser;
-using Application.Modules.Users.Commands.RegisterUserPostCodeBasedSchedule;
-using Application.Modules.Users.Commands.RegisterUserSchoolBasedSchedule;
+using Application.Modules.Users.Commands.RegisterUser;
 using Application.Modules.Users.Commands.ResetImpersonatedUser;
-using Application.Modules.Users.Commands.StartReferring;
-using Application.Modules.Users.Commands.UpdateMyAddressBilling;
-using Application.Modules.Users.Commands.UpdateMyAddressShipping;
 using Application.Modules.Users.Commands.UpdateMyLoginPreference;
 using Application.Modules.Users.Commands.UpdateMyPassword;
-using Application.Modules.Users.Commands.UpdateMyPaymentSource;
 using Application.Modules.Users.Commands.UpdateMyUser;
 using Application.Modules.Users.Models;
 using Application.Modules.Users.Queries.CheckUser;
-using Application.Modules.Users.Queries.GetMyBillingHistory;
 using Application.Modules.Users.Queries.GetMyUser;
 using Application.Modules.Users.Queries.GetUsers;
 using Application.Modules.Users.Queries.Login;
@@ -40,7 +33,7 @@ public class Users : BaseModule, IModule
     }
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        #region health
+        #region HEALTH
 
         endpoints.MapGet("/ping", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
         () =>
@@ -63,31 +56,9 @@ public class Users : BaseModule, IModule
             "query-params : none. Returns 'Pong' "
         );
 
-        //endpoints.MapGet("/ValidateDatesCommand", [AllowAnonymous]
-        //async (IMediator _mediator) =>
-        //{
-        //    return await CreateResponseAsync(async () =>
-        //    {
-        //        var result = await _mediator.Send(new ValidateDatesCommand());
-        //        return Results.Ok(new SuccessResponseModel<bool>
-        //        {
-        //            Message = "Pong!",
-        //            Result = true,
-        //            StatusCode = HttpStatusCode.OK,
-        //            Success = true
-        //        });
-        //    });
-        //})
-        //.AddMetaData<bool>
-        //(
-        //    "Health",
-        //    "Checks health with Authorization",
-        //    "query-params : none. Returns 'Pong' "
-        //);
-
         #endregion
 
-        #region Current User
+        #region CURRENT USER
 
         endpoints.MapGet("/users/me", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
         async (IMediator _mediator) =>
@@ -133,28 +104,6 @@ public class Users : BaseModule, IModule
             "header-params: X-REFRESH-TOKEN => refresh token, query-params : none. Returns Authorized Token Response"
         );
 
-        endpoints.MapGet("/users/me/histories/billing-histories", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (Pagination pagination, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var result = await _mediator.Send(new GetMyBillingHistoryQuery(pagination));
-                return Results.Ok(new SuccessResponseModel<PaginatedList<OrderHistory>>
-                {
-                    Message = "user billing histories fetched successfully",
-                    Result = result,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<PaginatedList<OrderHistory>>
-        (
-            "Users",
-            "Gets Current/Logged-In user billing histories",
-            "query-params : pagination. Returns Paginated list of Billing History Model"
-        );
-
         endpoints.MapPut("/users/me", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
         async (UpdateCurrentUserCommand request, IMediator _mediator) =>
         {
@@ -176,50 +125,6 @@ public class Users : BaseModule, IModule
             "Users",
             "Updates Current/Logged-In User Profile",
             "query-params : none. multipart/form-data : UpdateCurrentUserCommand. Returns Current/Logged-In USER"
-        );
-
-        endpoints.MapPut("/users/me/addresses/shipping", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (UpdateMyAddressShippingCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "Shipping Address updated successfully",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<bool>
-        (
-            "Users",
-            "Updates Current/Logged-In User Shipping Address",
-            "query-params : none. body : UpdateMyAddressShippingCommand. Returns Boolean"
-        );
-
-        endpoints.MapPut("/users/me/addresses/billing", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (UpdateMyAddressBillingCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "Billing Address updated successfully",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<bool>
-        (
-            "Users",
-            "Updates Current/Logged-In User Billing Address",
-            "query-params : none. body : UpdateMyAddressBillingCommand. Returns Boolean"
         );
 
         endpoints.MapPut("/users/me/update-password", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
@@ -266,53 +171,9 @@ public class Users : BaseModule, IModule
             "query-params : none, body : UpdateMyLoginPreferenceCommand. Returns bool"
         );
 
-        endpoints.MapPut("/users/me/payment-source/{token}", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (string token, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var result = await _mediator.Send(new UpdateMyPaymentSourceCommand(token));
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "User payment method updated successfully",
-                    Result = result,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<bool>
-        (
-            "Users",
-            "Updates A Customers Payment Source by using chargebee token",
-            "query-params : token => Chargebee token. Returns bool"
-        );
-
-        endpoints.MapPut("/users/me/referrals/get-started", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var result = await _mediator.Send(new StartReferringCommand());
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "User referrals started successfully",
-                    Result = result,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<bool>
-        (
-            "Users",
-            "Starts a user referrals",
-            "query-params : none. Returns bool"
-        );
-
         #endregion
 
-        #region User Operations
+        #region USER OPERATIONS
 
         endpoints.MapGet("/users/login", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
         async ([FromHeader(Name = HeaderLegend.EMAIL)][Required] string email, [FromHeader(Name = HeaderLegend.PASSWORD)][Required] string password, IMediator _mediator) =>
@@ -380,13 +241,13 @@ public class Users : BaseModule, IModule
             "query-params : email, returns true if user exists"
         );
 
-        endpoints.MapPost("/users/post-code/delivery/register", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
-        async (RegisterUserPostCodeBasedScheduleCommand request, IMediator _mediator) =>
+        endpoints.MapPost("/users/register", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
+        async (RegisterUserCommand request, IMediator _mediator) =>
         {
             return await CreateResponseAsync(async () =>
             {
                 var response = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<string>
+                return Results.Ok(new SuccessResponseModel<bool>
                 {
                     Message = "User Signed up Successfully",
                     Result = response,
@@ -398,30 +259,8 @@ public class Users : BaseModule, IModule
         .AddMetaData<string>
         (
             "Users",
-            "Register new user to application for post code based delivery",
-            "query-params : none. body-params: RegisterUserPostCodeBasedScheduleCommand, Returns chargebee customer ID "
-        );
-        
-        endpoints.MapPost("/users/school/delivery/register", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
-        async (RegisterUserSchoolBasedScheduleCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<string>
-                {
-                    Message = "User Signed up Successfully",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<string>
-        (
-            "Users",
-            "Register new user to application for school based delivery",
-            "query-params : none. body-params: RegisterUserSchoolBasedScheduleCommand, Returns chargebee customer ID "
+            "Register new user",
+            "query-params : none. body-params: RegisterUserCommand, Returns chargebee boolean "
         );
 
         endpoints.MapPost("/users/forget-password", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
@@ -444,28 +283,6 @@ public class Users : BaseModule, IModule
             "Users",
             "use this if user forgets password ",
             "query-params : none. body-params: ForgetPasswordRequest, Returns boolean "
-        );
-
-        endpoints.MapPost("/non-users", [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
-        async (AddAbandonedCartMemberCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var results = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "Success!",
-                    Result = results,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<bool>
-        (
-            "Users",
-            "use this for adding user to non subscribing users list",
-            "query-params : none. body-params: AddAbandonedCartMemberCommand, Returns boolean "
         );
 
         #endregion

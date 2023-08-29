@@ -1,4 +1,5 @@
-﻿using Application.Common.Extensions;
+﻿using API.Twilio.Service;
+using Application.Common.Extensions;
 using Domain.Abstractions.IRepositories.IGeneric;
 using Domain.Common.Constants;
 using Domain.Common.Exceptions;
@@ -19,15 +20,18 @@ public class SendOtpForLoginQueryHandler : IRequestHandler<SendOtpForLoginQuery,
     private readonly IUnitOfWork _unitOfWork;
     private readonly ApplicationOptions _options;
     private readonly IEmailService _emailService;
+    private readonly ITwilioService _twilioService;
     private readonly IWebHostEnvironment _hostEnvironment;
     public SendOtpForLoginQueryHandler(IUnitOfWork UnitOfWork,
                                        ApplicationOptions options,
                                        IEmailService emailService,
+                                       ITwilioService twilioService,
                                        IWebHostEnvironment hostEnvironment)
     {
         _options = options;
         _unitOfWork = UnitOfWork;
         _emailService = emailService;
+        _twilioService = twilioService;
         _hostEnvironment = hostEnvironment;
     }
 

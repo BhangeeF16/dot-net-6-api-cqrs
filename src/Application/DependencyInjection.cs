@@ -1,4 +1,6 @@
-﻿using Application.Common.Private;
+﻿using API.Twilio;
+using API.Twilio.Models;
+using Application.Common.Private;
 using Application.Pipeline.Authentication.APIKey;
 using Application.Pipeline.Authentication.Basic;
 using Application.Pipeline.Authentication.Bearer;
@@ -10,6 +12,7 @@ using Domain.ConfigurationOptions;
 using FluentValidation;
 using Infrastructure;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +38,8 @@ public static class DependencyInjection
         services.AddInfrastructureLayerServices(new InfrastructureOptions(configuration))
                 .AddApplicationLayerServices(new ApplicationOptions(configuration))
                 .AddUtilitiesLayerServices();
+
+        services.AddTwilio(new TwilioOptions(configuration));
 
         services.AddLogging(logging => logging.AddConsole());
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
