@@ -1,14 +1,13 @@
 ﻿#region Imports
-using Domain.Entities.UsersModule;
-using Domain.Entities.GeneralModule;
-using Domain.Entities.LoggingModule;
-using Infrastructure.Persistence;
-using Infrastructure.DataAccess.EntityRepositories;
-using Domain.ConfigurationOptions;
-using Domain.Entities.OrdersModule;
-using Microsoft.EntityFrameworkCore;
 using Domain.Abstractions.IRepositories.IEntity;
 using Domain.Abstractions.IRepositories.IGeneric;
+using Domain.ConfigurationOptions;
+using Domain.Entities.GeneralModule;
+using Domain.Entities.LoggingModule;
+using Domain.Entities.UsersModule;
+using Infrastructure.DataAccess.EntityRepositories;
+using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 #endregion
 
@@ -18,7 +17,7 @@ public class UnitOfWork : IUnitOfWork
 {
     #region CONSTRUCTORS AND LOCALS
 
-    public UnitOfWork(ApplicationDbContext context, InfrastructureOptions infrastructureOptions) => (_context, _infrastructureOptions) = (context, infrastructureOptions);    
+    public UnitOfWork(ApplicationDbContext context, InfrastructureOptions infrastructureOptions) => (_context, _infrastructureOptions) = (context, infrastructureOptions);
 
     #region Private member variables...
 
@@ -26,19 +25,12 @@ public class UnitOfWork : IUnitOfWork
     private readonly InfrastructureOptions _infrastructureOptions;
 
     private IUserRepository? _userRepository;
-    private IPlanRepository? _planRepository;
-    private IOrderRepository? _orderRepository;
-    private ISchoolRepository? _schoolRepository;
-    private IProduceRepository? _produceRepository;
     private ILookupsRepository? _lookupsRepository;
-    private IPostCodeRepository? _postCodeRepository;
-    private IPantryItemRepository? _pantryItemRepository;
 
     private IGenericRepository<Role>? _roleRepository;
     private IGenericRepository<ApiCallLog>? _apiCallLogsRepository;
     private IGenericRepository<AppSetting>? _appsettingsRepository;
     private IGenericRepository<MiddlewareLog>? _middlewareLogsRepository;
-    private IGenericRepository<NonSubscribingUser>? _nonSubscribingUserRepository;
 
     #endregion
 
@@ -56,33 +48,6 @@ public class UnitOfWork : IUnitOfWork
 
     public IUserRepository Users => _userRepository ??= new UserRepository(_context, _infrastructureOptions);
     public IGenericRepository<Role> Roles => _roleRepository ??= new GenericRepository<Role>(_context, _infrastructureOptions);
-    public IGenericRepository<NonSubscribingUser> NonSubscribingUsers => _nonSubscribingUserRepository ??= new GenericRepository<NonSubscribingUser>(_context, _infrastructureOptions);
-
-    #endregion
-
-    #region Subscription and Pantry Items Modules
-
-    public IPlanRepository Plans => _planRepository ??= new PlanRepository(_context, _infrastructureOptions);
-    public IProduceRepository Produces => _produceRepository ??= new ProduceRepository(_context, _infrastructureOptions);
-    public IPantryItemRepository PantryItems => _pantryItemRepository ??= new PantryItemRepository(_context, _infrastructureOptions);
-
-    #endregion
-
-    #region SCHOOLS MODULE
-
-    public ISchoolRepository Schools => _schoolRepository ??= new SchoolRepository(_context, _infrastructureOptions);
-
-    #endregion
-
-    #region Orders Module
-
-    public IOrderRepository Orders => _orderRepository ??= new OrderRepository(_context, _infrastructureOptions);
-
-    #endregion
-
-    #region Post Code Schedule Repository
-
-    public IPostCodeRepository PostCodes => _postCodeRepository ??= new PostCodeRepository(_context, _infrastructureOptions);
 
     #endregion
 

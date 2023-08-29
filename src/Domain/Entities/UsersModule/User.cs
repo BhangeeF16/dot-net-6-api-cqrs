@@ -44,27 +44,9 @@ public class User : BaseEntity
     public int LoginAttempts { get; set; }
     public int LastLoginOTP { get; set; }
 
-    [MaxLength(450)]
-    public string? ChargeBeeCustomerID { get; set; }
-    [MaxLength(450)]
-    public string? ChargeBeePaymentSourceID { get; set; }
-    [MaxLength(450)]
-    public string? Cin7CustomerID { get; set; }
-    [MaxLength(450)]
-    public string? FirstPromoterID { get; set; }
-    [MaxLength(4000)]
-    public string? FirstPromoterAuthToken { get; set; }
-    [MaxLength(450)]
-    public string? FirstPromoterReferralID { get; set; }
-
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
 
-
-    [DefaultValue(false)]
-    public bool IsReferringStarted { get; set; } = false;
-    [DefaultValue(true)]
-    public bool IsNewsLetter { get; set; }
     [DefaultValue(true)]
     public bool IsOTPLogin { get; set; }
     [DefaultValue(false)]
@@ -75,7 +57,6 @@ public class User : BaseEntity
 
     public int? ImpersonatedAsUser { get; set; }
     public int? ImpersonatedAsRole { get; set; }
-
 
     [ForeignKey("Gender")]
     public int? fk_GenderID { get; set; }
@@ -88,6 +69,4 @@ public class User : BaseEntity
     public virtual Gender? Gender { get; set; }
 
     public virtual ICollection<UserLoginHistory>? LoginHistories { get; set; }
-    public virtual ICollection<UserPantryItem>? PantryItems { get; set; }
-    public virtual ICollection<UserSubscription>? Subscriptions { get; set; }
 }
