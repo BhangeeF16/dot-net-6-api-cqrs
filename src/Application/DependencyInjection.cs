@@ -12,6 +12,7 @@ using Domain.ConfigurationOptions;
 using FluentValidation;
 using Infrastructure;
 using MediatR;
+using MediatR.Pipeline;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -53,19 +54,24 @@ public static class DependencyInjection
         services.Add(new ServiceDescriptor(typeof(ApplicationOptions), options));
 
         services.AddAutoMapper(Assembly.GetExecutingAssembly())
-                .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
-                .AddMediatR(config =>
-                {
-                    config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly(), typeof(MediatrDomainEventDispatcher).GetTypeInfo().Assembly);
-                })
+                .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        services.AddMediatR(config => config.ConfigureMediatR())
                 .AddTransient<IDomainEventDispatcher, MediatrDomainEventDispatcher>();
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>))
-                .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>))
-                .AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
-
-        services.AddTransient<IEmailService, EmailService>();
-
         return services;
+    }
+    private static MediatRServiceConfiguration ConfigureMediatR(this MediatRServiceConfiguration config)
+    {
+        var assemblies = new[] { Assembly.GetExecutingAssembly(), typeof(MediatrDomainEventDispatcher).GetTypeInfo().Assembly };
+
+        config.RegisterServicesFromAssemblies(assemblies);
+
+        config.AddBehavior(typeof(IRequestPreProcessor<>), typeof(LoggingBehaviour<>))
+              .AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>))
+              .AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>))
+              .AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
+
+        return config;
     }
 }
