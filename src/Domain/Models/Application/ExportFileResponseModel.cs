@@ -1,17 +1,16 @@
-﻿namespace Domain.Models.Application
+﻿namespace Domain.Models.Application;
+
+public class ExportFileResponseModel
 {
-    public class ExportFileResponseModel
+    public byte[]? Bytes { get; set; }
+
+    public ExportFileResponseModel(byte[]? bytes, string? mimeType, string? fileName)
     {
-        public byte[]? Bytes { get; set; }
-
-        public ExportFileResponseModel(byte[]? bytes, string? mimeType, string? fileName)
-        {
-            Bytes = bytes;
-            MimeType = mimeType;
-            FileName = fileName;
-        }
-
-        public string? MimeType { get; set; }
-        public string? FileName { get; set; }
+        Bytes = bytes;
+        MimeType = mimeType;
+        FileName = fileName;
     }
+
+    public string? MimeType { get; set; }
+    public string? FileName { get; set; }
 }

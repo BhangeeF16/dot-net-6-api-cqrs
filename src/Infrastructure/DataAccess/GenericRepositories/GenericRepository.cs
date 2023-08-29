@@ -18,8 +18,8 @@ public class GenericRepository<T> : QueriesRepository<T>, IGenericRepository<T> 
 
     protected readonly ApplicationDbContext _context;
     protected readonly InfrastructureOptions _infrastructureOptions;
-    public GenericRepository(ApplicationDbContext context, InfrastructureOptions infrastructureOptions) : base(context, infrastructureOptions) => (_context, _infrastructureOptions) = (context, infrastructureOptions);    
-    
+    public GenericRepository(ApplicationDbContext context, InfrastructureOptions infrastructureOptions) : base(context, infrastructureOptions) => (_context, _infrastructureOptions) = (context, infrastructureOptions);
+
     #endregion
 
     private DbSet<T>? _entities;

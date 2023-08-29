@@ -13,13 +13,9 @@ using System.Text;
 namespace Application.Pipeline.Authentication.Bearer.TokenGenerator;
 public class JwtTokenGenerator : IJwtTokenGenerator
 {
-    private readonly IDatetimeProvider _dateTimeProvider;
     private readonly JwtSettings _jwtSettings;
-    public JwtTokenGenerator(IDatetimeProvider dateTimeProvider, IOptions<JwtSettings> jwtSettings)
-    {
-        _dateTimeProvider = dateTimeProvider;
-        _jwtSettings = jwtSettings.Value;
-    }
+    private readonly IDatetimeProvider _dateTimeProvider;
+    public JwtTokenGenerator(IDatetimeProvider dateTimeProvider, IOptions<JwtSettings> jwtSettings) => (_dateTimeProvider, _jwtSettings) = (dateTimeProvider, jwtSettings.Value);
 
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string? token)
     {
@@ -89,40 +85,40 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 }
 
 //public UserTokens GenerateToken(User user, UserSubscription userSubscription)
-    //{
-    //    try
-    //    {
-    //        var claimsList = user.GetClaims(userSubscription.ChargeBeeID);
+//{
+//    try
+//    {
+//        var claimsList = user.GetClaims(userSubscription.ChargeBeeID);
 
-    //        // using symmetricKey because we later need to authenticateit (not using IDENTITY SERVER)
+//        // using symmetricKey because we later need to authenticateit (not using IDENTITY SERVER)
 
-    //        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.IssuerSigningKey ?? string.Empty));
-    //        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-    //        var expiresIn = _dateTimeProvider.UtcNow.AddMinutes(_jwtSettings.ExpiryAfterMinutes);
+//        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.IssuerSigningKey ?? string.Empty));
+//        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+//        var expiresIn = _dateTimeProvider.UtcNow.AddMinutes(_jwtSettings.ExpiryAfterMinutes);
 
-    //        var securityToken = new JwtSecurityToken(
-    //            issuer: _jwtSettings.ValidIssuer,
-    //            audience: _jwtSettings.ValidAudience,
-    //            expires: expiresIn,
-    //            claims: claimsList,
-    //            signingCredentials: creds);
+//        var securityToken = new JwtSecurityToken(
+//            issuer: _jwtSettings.ValidIssuer,
+//            audience: _jwtSettings.ValidAudience,
+//            expires: expiresIn,
+//            claims: claimsList,
+//            signingCredentials: creds);
 
-    //        return new UserTokens()
-    //        {
-    //            //UserId = user.ID,
-    //            //FullName = $"{user.FirstName} {user.LastName}",
-    //            //Email = user.Email,
-    //            //UserName = user.Email,
-    //            //RoleId = user.fk_RoleID,
-    //            AccessTokenExpiryTime = expiresIn,
-    //            AccessToken = new JwtSecurityTokenHandler().WriteToken(securityToken),
-    //            RefreshToken = JwtExtensions.GenerateRefreshToken(),
-    //            RefreshTokenExpiryTime = expiresIn.AddMinutes(30),
-    //        };
-    //    }
-    //    catch (Exception)
-    //    {
+//        return new UserTokens()
+//        {
+//            //UserId = user.ID,
+//            //FullName = $"{user.FirstName} {user.LastName}",
+//            //Email = user.Email,
+//            //UserName = user.Email,
+//            //RoleId = user.fk_RoleID,
+//            AccessTokenExpiryTime = expiresIn,
+//            AccessToken = new JwtSecurityTokenHandler().WriteToken(securityToken),
+//            RefreshToken = JwtExtensions.GenerateRefreshToken(),
+//            RefreshTokenExpiryTime = expiresIn.AddMinutes(30),
+//        };
+//    }
+//    catch (Exception)
+//    {
 
-    //        throw;
-    //    }
-    //}
+//        throw;
+//    }
+//}

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using RestSharp;
+﻿using RestSharp;
 using RestSharp.Authenticators;
 
 namespace Utilities.UnitOfRequests.Authenticators;

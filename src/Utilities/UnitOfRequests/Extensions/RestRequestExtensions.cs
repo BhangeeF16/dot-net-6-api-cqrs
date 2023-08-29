@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using RestSharp;
+﻿using RestSharp;
 using Utilities.UnitOfRequests.Models;
 
 namespace Utilities.UnitOfRequests.Extensions;
@@ -12,10 +11,10 @@ public static class RestRequestExtensions
     public static RestRequest PutRequest(this RequestConfiguration configuration, object Body, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null)
         => Request(configuration, Method.Put, Body, QueryParameters, Headers);
 
-    public static RestRequest PostRequest(this RequestConfiguration configuration, object Body, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) 
+    public static RestRequest PostRequest(this RequestConfiguration configuration, object Body, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null)
         => Request(configuration, Method.Post, Body, QueryParameters, Headers);
 
-    public static RestRequest PatchRequest(this RequestConfiguration configuration, object Body, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) 
+    public static RestRequest PatchRequest(this RequestConfiguration configuration, object Body, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null)
         => Request(configuration, Method.Patch, Body, QueryParameters, Headers);
 
     private static RestRequest Request(this RequestConfiguration configuration, Method method, object Body = null, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null)

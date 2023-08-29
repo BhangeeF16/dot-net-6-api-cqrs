@@ -21,7 +21,7 @@ public class EmailService : IEmailService
             EnableSsl = _options.EnableSsl,
             Credentials = new NetworkCredential(_options.UserName, _options.Password)
         };
-}
+    }
 
     public async Task SendEmailAsync(EmailOptions email)
     {

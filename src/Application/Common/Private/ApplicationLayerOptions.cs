@@ -1,14 +1,13 @@
-﻿namespace Application.Common.Private
-{
-    public class ApplicationLayerOptions
-    {
-        public string? UIResource { get; set; }
-        public string? APIResource { get; set; }
+﻿namespace Application.Common.Private;
 
-        public ApplicationLayerOptions(string? uIResource, string? aPIResource)
-        {
-            UIResource = uIResource;
-            APIResource = aPIResource;
-        }
+public class ApplicationLayerOptions
+{
+    public string? UIResource { get; set; }
+    public string? APIResource { get; set; }
+
+    public ApplicationLayerOptions(string? uIResource, string? aPIResource)
+    {
+        UIResource = uIResource;
+        APIResource = aPIResource;
     }
 }

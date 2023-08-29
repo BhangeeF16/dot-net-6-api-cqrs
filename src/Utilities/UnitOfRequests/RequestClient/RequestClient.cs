@@ -49,19 +49,19 @@ public class RequestClient<T> : IRequestClient<T> where T : class
 
     #region METHODS
 
-    public T GET(KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) 
+    public T GET(KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null)
         => _client.ProcessGetRequest(_configuration, QueryParameters, Headers).FormatResponse<T>();
-    public TResponse GET<TResponse>(KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class 
+    public TResponse GET<TResponse>(KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class
         => _client.ProcessGetRequest(_configuration, QueryParameters, Headers).FormatResponse<TResponse>();
 
-    public TResponse POST<TResponse>(T entity, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class 
+    public TResponse POST<TResponse>(T entity, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class
         => _client.ProcessPostRequest(_configuration, entity, QueryParameters, Headers).FormatResponse<TResponse>();
-    public TResponse POST<TRequest, TResponse>(TRequest entity, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class 
+    public TResponse POST<TRequest, TResponse>(TRequest entity, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class
         => _client.ProcessPostRequest(_configuration, entity, QueryParameters, Headers).FormatResponse<TResponse>();
 
-    public TResponse PUT<TResponse>(T entity, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class 
+    public TResponse PUT<TResponse>(T entity, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class
         => _client.ProcessPutRequest(_configuration, entity, QueryParameters, Headers).FormatResponse<TResponse>();
-    public TResponse PUT<TRequest, TResponse>(TRequest entity, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class 
+    public TResponse PUT<TRequest, TResponse>(TRequest entity, KeyValuePair<string, string>[] QueryParameters = null, KeyValuePair<string, string>[] Headers = null) where TResponse : class
         => _client.ProcessPutRequest(_configuration, entity, QueryParameters, Headers).FormatResponse<TResponse>();
 
     #endregion

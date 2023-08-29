@@ -56,7 +56,6 @@ public static class DependencyInjection
                 .AddTransient<IDomainEventDispatcher, MediatrDomainEventDispatcher>();
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>))
-                .AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>))
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>))
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
 

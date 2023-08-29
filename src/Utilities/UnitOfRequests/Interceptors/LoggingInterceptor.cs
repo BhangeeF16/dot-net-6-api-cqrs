@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Domain.Abstractions.IRepositories.IGeneric;
+﻿using Domain.Abstractions.IRepositories.IGeneric;
 using Domain.Entities.LoggingModule;
 using Microsoft.Extensions.Logging;
 using System.Text;

@@ -1,10 +1,9 @@
-﻿namespace Domain.Common.Extensions
+﻿namespace Domain.Common.Extensions;
+
+public class QueriesHelper
 {
-    public class QueriesHelper
+    public static string CheckAndDropStoredProcedure(string StoredProcedureName)
     {
-        public static string CheckAndDropStoredProcedure(string StoredProcedureName)
-        {
-            return $"IF EXISTS ( SELECT * FROM sysobjects WHERE  id = object_id(N'[{StoredProcedureName}]')) BEGIN DROP PROCEDURE [{StoredProcedureName}] END";
-        }
+        return $"IF EXISTS ( SELECT * FROM sysobjects WHERE  id = object_id(N'[{StoredProcedureName}]')) BEGIN DROP PROCEDURE [{StoredProcedureName}] END";
     }
 }

@@ -1,7 +1,5 @@
 ﻿using Domain.Abstractions.IAuth;
 using Domain.Abstractions.IRepositories.IGeneric;
-using Domain.Abstractions.IServices;
-using Domain.Common.Constants;
 using Domain.Common.Exceptions;
 using Domain.Common.Extensions;
 using Domain.Models.Auth;
@@ -13,19 +11,12 @@ namespace Application.Modules.Users.Queries.Login;
 public class LoginQueryHandler : IRequestHandler<LoginQuery, UserTokens>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IChargeBeeService _chargeBeeService;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
-    public LoginQueryHandler(IUnitOfWork unitOfWork, IChargeBeeService chargeBeeService, IJwtTokenGenerator jwtTokenGenerator)
-        => (_unitOfWork, _chargeBeeService, _jwtTokenGenerator) = (unitOfWork, chargeBeeService, jwtTokenGenerator);
+    public LoginQueryHandler(IUnitOfWork unitOfWork, IJwtTokenGenerator jwtTokenGenerator) => (_unitOfWork, _jwtTokenGenerator) = (unitOfWork, jwtTokenGenerator);
 
     public async Task<UserTokens> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        var user = await _chargeBeeService.GetUserNoTrackingAsync(request.Email);
-        if (user != null && user.RoleIs(RoleLegend.CUSTOMER))
-        {
-            await _chargeBeeService.GetUserSubscriptionNoTrackingAsync(user.ChargeBeeCustomerID, user.ID);
-        }
-
+        var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.Email.ToLower().Equals(request.Email.ToLower()) && x.IsActive && !x.IsDeleted);
         UserTokens userTokens = null;
         if (user.IsOTPLogin)
         {

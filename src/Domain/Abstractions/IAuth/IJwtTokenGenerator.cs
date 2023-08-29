@@ -2,11 +2,10 @@
 using Domain.Models.Auth;
 using System.Security.Claims;
 
-namespace Domain.Abstractions.IAuth
+namespace Domain.Abstractions.IAuth;
+
+public interface IJwtTokenGenerator
 {
-    public interface IJwtTokenGenerator
-    {
-        UserTokens GenerateToken(User user);
-        ClaimsPrincipal GetPrincipalFromExpiredToken(string? token);
-    }
+    UserTokens GenerateToken(User user);
+    ClaimsPrincipal GetPrincipalFromExpiredToken(string? token);
 }

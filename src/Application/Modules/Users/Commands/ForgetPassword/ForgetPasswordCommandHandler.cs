@@ -5,8 +5,6 @@ using Domain.Common.Extensions;
 using MediatR;
 using Utilities.Abstractions;
 using Utilities.Models;
-using Utilities.Services;
-using static System.Net.WebRequestMethods;
 
 namespace Application.Modules.Users.Commands.ForgetPassword;
 

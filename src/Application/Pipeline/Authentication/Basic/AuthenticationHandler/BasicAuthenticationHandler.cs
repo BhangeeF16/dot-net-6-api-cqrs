@@ -2,10 +2,7 @@
 using Application.Pipeline.Authentication.Basic.Extensions;
 using Application.Pipeline.Authentication.Extensions;
 using Domain.Abstractions.IRepositories.IGeneric;
-using Domain.Abstractions.IServices;
-using Domain.Common.Exceptions;
 using Domain.Common.Extensions;
-using Domain.Entities.UsersModule;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -17,19 +14,16 @@ namespace Application.Pipeline.Authentication.Basic.AuthenticationHandler;
 public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IChargeBeeService _chargeBeeService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     public BasicAuthenticationHandler(ISystemClock clock,
                                       UrlEncoder encoder,
                                       ILoggerFactory logger,
                                       IUnitOfWork unitOfWork,
-                                      IChargeBeeService chargeBeeService,
                                       IHttpContextAccessor httpContextAccessor,
                                       IOptionsMonitor<AuthenticationSchemeOptions> options) : base(options, logger, encoder, clock)
     {
-        _httpContextAccessor = httpContextAccessor;
         _unitOfWork = unitOfWork;
-        _chargeBeeService = chargeBeeService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -46,7 +40,7 @@ public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSc
                 string userName = userNameAndPasword.Item1.ToLower();
                 string password = userNameAndPasword.Item2;
 
-                var user = await _chargeBeeService.GetUserNoTrackingAsync(userName);
+                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.Email.ToLower().Equals(userName) && x.IsActive && !x.IsDeleted);
                 if (user is null)
                 {
                     return await Task.FromResult(AuthenticateResult.Fail("User not found"));
@@ -64,16 +58,11 @@ public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSc
 
                     if (user.fk_RoleID == 2) // Customer
                     {
-                        var userSubscription = await _chargeBeeService.GetUserSubscriptionNoTrackingAsync(user.ChargeBeeCustomerID, user.ID);
                         claims.Add(new Claim(ClaimTypes.Sid, user?.ID.ToString() ?? string.Empty));
                         claims.Add(new Claim(ClaimTypes.Role, user?.fk_RoleID.ToString() ?? string.Empty));
                         claims.Add(new Claim(ClaimTypes.Email, user?.Email ?? string.Empty));
                         claims.Add(new Claim(ClaimTypes.Name, user?.FirstName ?? string.Empty));
                         claims.Add(new Claim(ClaimTypes.NameIdentifier, user?.LastName ?? string.Empty));
-
-                        claims.Add(new Claim(ClaimTypes.GivenName, user?.ChargeBeeCustomerID ?? string.Empty));
-                        claims.Add(new Claim(ClaimTypes.Actor, userSubscription?.ChargeBeeID ?? string.Empty));
-                        claims.Add(new Claim(ClaimTypes.Country, user?.Cin7CustomerID ?? string.Empty));
                     }
 
                     if ((user.fk_RoleID >= 3) || user.fk_RoleID == 1) // Application Admin OR Customer Support
@@ -88,18 +77,13 @@ public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSc
 
                             if (userImpersonation.fk_RoleID == 2) // customer
                             {
-                                var userImpersonationSubscription = await _chargeBeeService.GetUserSubscriptionNoTrackingAsync(userImpersonation.ChargeBeeCustomerID, userImpersonation.ID);
                                 claims.Add(new Claim(ClaimTypes.Sid, userImpersonation?.ID.ToString() ?? string.Empty));
                                 claims.Add(new Claim(ClaimTypes.Role, userImpersonation?.fk_RoleID.ToString() ?? string.Empty));
                                 claims.Add(new Claim(ClaimTypes.Email, userImpersonation?.Email ?? string.Empty));
                                 claims.Add(new Claim(ClaimTypes.Name, userImpersonation?.FirstName ?? string.Empty));
                                 claims.Add(new Claim(ClaimTypes.NameIdentifier, userImpersonation?.LastName ?? string.Empty));
-
-                                claims.Add(new Claim(ClaimTypes.GivenName, userImpersonation?.ChargeBeeCustomerID ?? string.Empty));
-                                claims.Add(new Claim(ClaimTypes.Actor, userImpersonationSubscription?.ChargeBeeID ?? string.Empty));
-                                claims.Add(new Claim(ClaimTypes.Country, userImpersonation?.Cin7CustomerID ?? string.Empty));
+                                // add impersonation logic for other roles if needed here
                             }
-                            // add impersonation logic for other roles if needed here
                         }
                         else
                         {

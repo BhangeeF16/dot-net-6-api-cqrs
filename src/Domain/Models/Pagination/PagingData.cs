@@ -1,10 +1,9 @@
 ﻿using Newtonsoft.Json;
 
-namespace Domain.Models.Pagination
+namespace Domain.Models.Pagination;
+
+public class PagingData
 {
-    public class PagingData
-    {
-        [JsonProperty("TotalCount")]
-        public int TotalCount { get; set; } = 0;
-    }
+    [JsonProperty("TotalCount")]
+    public int TotalCount { get; set; } = 0;
 }

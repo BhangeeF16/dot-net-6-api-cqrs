@@ -1,11 +1,5 @@
-﻿using API.Chargebee.Abstractions;
-using API.Chargebee.Common;
-using API.Chargebee.Models;
-using API.Klaviyo.Models;
-using AutoMapper;
-using Domain.Abstractions.IAuth;
+﻿using Domain.Abstractions.IAuth;
 using Domain.Abstractions.IRepositories.IGeneric;
-using Domain.Abstractions.IServices;
 using Domain.Common.Extensions;
 using Domain.ConfigurationOptions;
 using Domain.Entities.GeneralModule;
@@ -15,7 +9,6 @@ using Infrastructure.DataAccess.GenericRepositories;
 using Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using NPOI.XSSF.UserModel;
 
 namespace Application.Modules.Users.Queries.GetUsers;
 
@@ -121,8 +114,10 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, PaginatedList
 
             if (userSubscription is null)
             {
-                userSubscription = new UserSubscription();
-                userSubscription.ChargeBeeID = "NULL_IN_DB";
+                userSubscription = new UserSubscription
+                {
+                    ChargeBeeID = "NULL_IN_DB"
+                };
             }
 
             //user.ChargeBeeSubscriptionID = userSubscription.ChargeBeeID;

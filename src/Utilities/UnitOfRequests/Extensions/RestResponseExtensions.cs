@@ -1,5 +1,4 @@
-﻿using Azure;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RestSharp;
 
 namespace Utilities.UnitOfRequests.Extensions;

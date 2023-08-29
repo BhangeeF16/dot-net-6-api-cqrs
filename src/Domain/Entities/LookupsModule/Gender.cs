@@ -3,22 +3,20 @@ using Domain.Entities.UsersModule;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Domain.Entities.LookupsModule
+namespace Domain.Entities.LookupsModule;
+
+[Table("Gender")]
+public class Gender : AuditableEntity
 {
-    [Table("Gender")]
-    public class Gender : AuditableEntity
-    {
-        public Gender() : base() { }
-        public Gender(string? value) : base() => Value = value;
+    public Gender() : base() { }
+    public Gender(string? value) : base() => Value = value;
 
-        [Key]
-        public int ID { get; set; }
+    [Key]
+    public int ID { get; set; }
 
-        [Required]
-        [MaxLength(50)]
-        public string? Value { get; set; }
+    [Required]
+    [MaxLength(50)]
+    public string? Value { get; set; }
 
-        public virtual ICollection<User>? Users { get; set; }
-    }
-
+    public virtual ICollection<User>? Users { get; set; }
 }

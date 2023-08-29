@@ -1,11 +1,10 @@
-﻿namespace Application.Pipeline.Authentication.Bearer.Extensions
+﻿namespace Application.Pipeline.Authentication.Bearer.Extensions;
+
+public interface IDatetimeProvider
 {
-    public interface IDatetimeProvider
-    {
-        DateTime UtcNow { get; }
-    }
-    public class DatetimeProvider : IDatetimeProvider
-    {
-        public DateTime UtcNow => DateTime.UtcNow;
-    }
+    DateTime UtcNow { get; }
+}
+public class DatetimeProvider : IDatetimeProvider
+{
+    public DateTime UtcNow => DateTime.UtcNow;
 }

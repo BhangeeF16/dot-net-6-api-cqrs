@@ -1,10 +1,9 @@
-﻿using API.Twilio.Service;
-using Application.Common.Extensions;
+﻿using Application.Common.Extensions;
 using Domain.Abstractions.IRepositories.IGeneric;
-using Domain.Abstractions.IServices;
 using Domain.Common.Constants;
 using Domain.Common.Exceptions;
 using Domain.Common.Extensions;
+using Domain.ConfigurationOptions;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -18,28 +17,25 @@ public class SendOtpForLoginQueryHandler : IRequestHandler<SendOtpForLoginQuery,
     #region CONSTRUCTORS AND LOCALS
 
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ApplicationOptions _options;
     private readonly IEmailService _emailService;
-    private readonly ITwilioService _twilioService;
-    private readonly IChargeBeeService _chargeBeeService;
     private readonly IWebHostEnvironment _hostEnvironment;
     public SendOtpForLoginQueryHandler(IUnitOfWork UnitOfWork,
+                                       ApplicationOptions options,
                                        IEmailService emailService,
-                                       ITwilioService twilioService,
-                                       IChargeBeeService chargeBeeService,
                                        IWebHostEnvironment hostEnvironment)
     {
+        _options = options;
         _unitOfWork = UnitOfWork;
         _emailService = emailService;
-        _twilioService = twilioService;
         _hostEnvironment = hostEnvironment;
-        _chargeBeeService = chargeBeeService;
     }
-    
+
     #endregion
 
     public async Task<bool> Handle(SendOtpForLoginQuery request, CancellationToken cancellationToken)
     {
-        var user = await _chargeBeeService.GetUserNoTrackingAsync(request.Email);
+        var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.Email.ToLower().Equals(request.Email.ToLower()) && x.IsActive && !x.IsDeleted);
 
         if (user.IsOTPLogin)
         {
@@ -61,7 +57,7 @@ public class SendOtpForLoginQueryHandler : IRequestHandler<SendOtpForLoginQuery,
             {
                 _emailService.SendEmailAsync(new EmailOptions
                 {
-                    Subject = "Farmers Pick - OTP Code",
+                    Subject = $"{_options.Company} - OTP Code",
                     IsBodyHtml = true,
                     ToEmails = new List<string>()
                     {
@@ -85,9 +81,9 @@ public class SendOtpForLoginQueryHandler : IRequestHandler<SendOtpForLoginQuery,
 
             _unitOfWork.Users.Update(user);
             _unitOfWork.Complete();
-            
+
             #endregion
-            
+
             return true;
         }
         else

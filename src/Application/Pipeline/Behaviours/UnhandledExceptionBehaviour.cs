@@ -1,5 +1,4 @@
-﻿using Domain.Common.Exceptions;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Pipeline.Behaviours;
