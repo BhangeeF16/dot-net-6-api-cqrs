@@ -43,7 +43,7 @@ public class GetMyUserQueryHandler : IRequestHandler<GetMyUserQuery, UserDto>
 
         #region IF CUSTOMER
 
-        if (user.fk_RoleID is RoleLegend.CUSTOMER)
+        if (user.fk_RoleID is RoleLegend.USER)
         {
             user.PhoneNumber = user.PhoneNumber.FormatPhoneNumber();
             user.Role = null;
@@ -56,7 +56,7 @@ public class GetMyUserQueryHandler : IRequestHandler<GetMyUserQuery, UserDto>
 
         #region IMPERSONATION
 
-        if (!_currentUserService.LoggedInAs(RoleLegend.CUSTOMER) && _currentUserService.RoleIs(RoleLegend.CUSTOMER))
+        if (!_currentUserService.LoggedInAs(RoleLegend.USER) && _currentUserService.RoleIs(RoleLegend.USER))
         {
             var impersonatorUser = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.ID == _currentUserService.LoggedInUser && x.fk_RoleID == _currentUserService.LoggedInUserRole && !x.IsDeleted);
             userResponse.Impersonator = new UserImpersonatorDto(impersonatorUser is not null)

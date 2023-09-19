@@ -3,29 +3,10 @@
 public static class ModuleExtensions
 {
     // this could also be added into the DI container
-    private static readonly List<IModule> registeredModules = new List<IModule>();
+    private static readonly List<IModule> _registeredModules = new();
 
-    public static IServiceCollection RegisterModules(this IServiceCollection services)
-    {
-        var modules = DiscoverModules();
-        foreach (var module in modules)
-        {
-            module.RegisterModule(services);
-            registeredModules.Add(module);
-        }
-
-        return services;
-    }
-
-    public static WebApplication MapEndpoints(this WebApplication app)
-    {
-        foreach (var module in registeredModules)
-        {
-            module.MapEndpoints(app);
-        }
-
-        return app;
-    }
+    public static void RegisterModules(this IServiceCollection _) => DiscoverModules().ForEach(x => _registeredModules.Add(x));
+    public static void MapEndpoints(this WebApplication app) => _registeredModules.ForEach(x => x.MapEndpoints(app));
 
     private static List<IModule> DiscoverModules()
     {

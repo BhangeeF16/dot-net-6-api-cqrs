@@ -1,6 +1,6 @@
 ﻿using Application.Common.Mapper;
 using AutoMapper;
-using Domain.Entities.UsersModule;
+using Domain.Entities.RolesModule;
 
 namespace Application.Modules.Users.Models;
 

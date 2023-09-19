@@ -6,6 +6,7 @@ using Domain.ConfigurationOptions;
 using Domain.Entities.GeneralModule;
 using Domain.Entities.LoggingModule;
 using Domain.Entities.LookupsModule;
+using Domain.Entities.RolesModule;
 using Domain.Entities.UsersModule;
 using Microsoft.EntityFrameworkCore;
 
@@ -150,9 +151,16 @@ public class ApplicationDbContext : DbContext
 
     #region USERS MODULES
 
-    public virtual DbSet<Role> Roles { get; set; }
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<UserLoginHistory> UserLoginHistories { get; set; }
+
+    #endregion
+    
+    #region ROLES MODULES
+    
+    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Module> Modules { get; set; }
+    public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
     #endregion
 

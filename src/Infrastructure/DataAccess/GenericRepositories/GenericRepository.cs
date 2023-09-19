@@ -45,6 +45,18 @@ public class GenericRepository<T> : QueriesRepository<T>, IGenericRepository<T> 
         }
         return await query.ToListAsync();
     }
+    public async Task<IEnumerable<T>> GetAllNoTrackingAsync(params Expression<Func<T, object>>[] includes)
+    {
+        var query = _context.Set<T>().AsQueryable();
+        if (includes != null && includes.Length > 0)
+        {
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+        }
+        return await query.AsNoTracking().ToListAsync();
+    }
 
     public async Task<IEnumerable<T>> GetWhereNoTrackingAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
     {

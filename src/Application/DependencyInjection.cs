@@ -13,7 +13,6 @@ using FluentValidation;
 using Infrastructure;
 using MediatR;
 using MediatR.Pipeline;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,8 +20,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using Utilities;
-using Utilities.Abstractions;
-using Utilities.Services;
 
 namespace Application;
 
@@ -34,7 +31,7 @@ public static class DependencyInjection
                 .AddBearerAuthentication(configuration, true)
                 .AddBasicAuthentication()
                 .AddAPIKeyAuthentication()
-                .AddRoleAuthorization();
+                .AddRolePolicies();
 
         services.AddInfrastructureLayerServices(new InfrastructureOptions(configuration))
                 .AddApplicationLayerServices(new ApplicationOptions(configuration))

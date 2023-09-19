@@ -20,7 +20,7 @@ public class ResetImpersonatedUserCommandHandler : IRequestHandler<ResetImperson
             throw new ClientException("No user found !", System.Net.HttpStatusCode.NotFound);
         }
 
-        if (user.RoleIs(RoleLegend.CUSTOMER))
+        if (user.RoleIs(RoleLegend.USER))
         {
             throw new ClientException("Not allowed !", System.Net.HttpStatusCode.BadRequest);
         }

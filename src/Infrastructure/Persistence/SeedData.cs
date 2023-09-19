@@ -1,80 +1,89 @@
 ﻿using Domain.Common.Constants;
 using Domain.Common.Extensions;
+using Domain.Entities.GeneralModule;
 using Domain.Entities.LookupsModule;
+using Domain.Entities.RolesModule;
 using Domain.Entities.UsersModule;
 
 namespace Infrastructure.Persistence;
 
 public static class SeedData
 {
-    private static readonly List<User> users = new()
+    private static readonly List<User> _users = new()
     {
-        new User
+        new User(UserLegend.APPLICATION_ADMIN, RoleLegend.APPLICATION_ADMIN)
         {
-            ID = 1,
             FirstName = "Application",
             LastName = "Admin",
             Email = "admin@{{DNS}}",
             Password = PasswordHasher.GeneratePasswordHash("{{GENERATE_PASSOWRD}}"),
-            DOB = new DateTime(1999, 10, 19, 0, 0, 0, 0, DateTimeKind.Utc),
             PhoneNumber = "1234567890",
-            fk_GenderID = 1,
+            fk_GenderID = GenderLegend.MALE,
             fk_RoleID = RoleLegend.APPLICATION_ADMIN,
-            LoginAttempts = 0,
-            IsOTPLogin = false,
-            IsPasswordChanged = true,
-            IsActive = true,
-            IsDeleted = false,
         },
-        new User
+        new User(UserLegend.API_ADMIN, RoleLegend.APPLICATION_ADMIN)
         {
-            ID = 2,
             FirstName = "API",
             LastName = "USER",
             Email = "admin@api.com",
             Password = PasswordHasher.GeneratePasswordHash("{{GENERATE_PASSOWRD}}"),
-            DOB = new DateTime(1999, 10, 19, 0, 0, 0, 0, DateTimeKind.Utc),
             PhoneNumber = "1234567890",
-            fk_GenderID = 1,
-            fk_RoleID = RoleLegend.APPLICATION_ADMIN,
-            LoginAttempts = 0,
-            IsOTPLogin = false,
-            IsPasswordChanged = true,
-            IsActive = true,
-            IsDeleted = false,
+            fk_GenderID = GenderLegend.MALE,
         },
-        new User
+        new User(UserLegend.SUPPORT, RoleLegend.SUPPORT)
         {
-            ID = 3,
             FirstName = "Customer",
             LastName = "Support",
             Email = "support@{{DNS}}",
             Password = PasswordHasher.GeneratePasswordHash("{{GENERATE_PASSOWRD}}"),
-            DOB = new DateTime(1999, 10, 19, 0, 0, 0, 0, DateTimeKind.Utc),
             PhoneNumber = "1234567890",
-            fk_GenderID = 1,
-            fk_RoleID = RoleLegend.CUSTOMER_SUPPORT,
-            LoginAttempts = 0,
-            IsOTPLogin = false,
-            IsPasswordChanged = true,
-            IsActive = true,
-            IsDeleted = false,
+            fk_GenderID = GenderLegend.MALE,
         },
     };
-    private static readonly List<Role> roles = new()
+    private static readonly List<Role> _roles = new()
     {
-        new Role { ID = RoleLegend.APPLICATION_ADMIN, Name = "Application Admin", IsActive = true, IsDeleted = false },
-        new Role { ID = RoleLegend.CUSTOMER, Name = "Customer" , IsActive = true, IsDeleted = false },
-        new Role { ID = RoleLegend.CUSTOMER_SUPPORT, Name = "Customer Support" , IsActive = true, IsDeleted = false }
+        new Role(RoleLegend.APPLICATION_ADMIN, "Application Admin"),
+        new Role(RoleLegend.USER, "User"),
+        new Role(RoleLegend.SUPPORT, "User Support")
     };
-    private static readonly List<Gender> genders = new()
+    private static readonly List<Gender> _genders = new()
     {
-        new Gender { ID = 1, Value = "Male" },
-        new Gender { ID = 2, Value = "FeMale" },
-        new Gender { ID = 3, Value = "Other" },
+        new Gender(GenderLegend.MALE, "Male"),
+        new Gender(GenderLegend.FEMALE, "Female"),
+        new Gender(GenderLegend.OTHER, "Other"),
+    };
+    private static readonly List<Module> _modules = new()
+    {
+        new Module(ModuleLegend.USERS, ModuleLegend.USERS_MODULE),
+        new Module(ModuleLegend.ROLES, ModuleLegend.ROLES_MODULE),
+    };
+    private static readonly List<RolePermission> _rolePermissions = new()
+    {
+        new RolePermission()
+        { 
+            ID = 1, PermissionLevel = PermissionLevel.All,
+            fk_RoleID = RoleLegend.APPLICATION_ADMIN, fk_ModuleID = ModuleLegend.USERS,
+        },
+        new RolePermission()
+        { 
+            ID = 2, PermissionLevel = PermissionLevel.All,
+            fk_RoleID = RoleLegend.APPLICATION_ADMIN, fk_ModuleID = ModuleLegend.ROLES, 
+        },
+        new RolePermission()
+        {
+            ID = 3, PermissionLevel = PermissionLevel.None,
+            fk_RoleID = RoleLegend.USER, fk_ModuleID = ModuleLegend.USERS,
+        },
+        new RolePermission()
+        {
+            ID = 4, PermissionLevel = PermissionLevel.None,
+            fk_RoleID = RoleLegend.USER, fk_ModuleID = ModuleLegend.ROLES,
+        },
     };
 
-    public static List<User> Users { get => users; }
-    public static List<Role> Roles { get => roles; }
-    public static List<Gender> Genders { get => genders; }
+    public static List<Role> Roles => _roles;
+    public static List<User> Users => _users;
+    public static List<Gender> Genders => _genders;
+    public static List<Module> Modules => _modules;
+    public static List<RolePermission> RolePermissions => _rolePermissions;
 }

@@ -10,6 +10,7 @@ public class Gender : AuditableEntity
 {
     public Gender() : base() { }
     public Gender(string? value) : base() => Value = value;
+    public Gender(int iD, string name) : base() => (ID, Value) = (iD, name);
 
     [Key]
     public int ID { get; set; }

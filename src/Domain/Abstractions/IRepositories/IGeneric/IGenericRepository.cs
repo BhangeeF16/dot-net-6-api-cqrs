@@ -17,6 +17,7 @@ public interface IGenericRepository<T> : IQueriesRepository<T> where T : class
     Task<T> GetAsync(string id);
 
     Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes);
+    Task<IEnumerable<T>> GetAllNoTrackingAsync(params Expression<Func<T, object>>[] includes);
 
     Task<IEnumerable<T>> GetWhereAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
     Task<IEnumerable<T>> GetWhereAsync(int index, int count, Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);

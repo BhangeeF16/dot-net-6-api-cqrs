@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.GeneralModule;
 using Domain.Entities.LookupsModule;
+using Domain.Entities.RolesModule;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,7 +10,22 @@ namespace Domain.Entities.UsersModule;
 [Table("User")]
 public class User : BaseEntity
 {
-    public User() : base() { }
+    public User() : base()
+    {
+        DOB = new DateTime(1999, 10, 19, 0, 0, 0, 0, DateTimeKind.Utc);
+        LoginAttempts = 0;
+        IsOTPLogin = false;
+        IsPasswordChanged = true;
+        IsActive = true;
+        IsDeleted = false;
+    }
+
+    public User(int id, int roleID) : this()
+    {
+        ID = id;
+        fk_RoleID = roleID;
+    }
+
 
     [Key]
     public int ID { get; set; }
@@ -60,6 +76,7 @@ public class User : BaseEntity
 
     [ForeignKey("Gender")]
     public int? fk_GenderID { get; set; }
+    
     [ForeignKey("Role")]
     public int fk_RoleID { get; set; }
 

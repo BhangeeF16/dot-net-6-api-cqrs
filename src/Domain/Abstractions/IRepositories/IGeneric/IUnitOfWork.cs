@@ -3,7 +3,7 @@
 using Domain.Abstractions.IRepositories.IEntity;
 using Domain.Entities.GeneralModule;
 using Domain.Entities.LoggingModule;
-using Domain.Entities.UsersModule;
+using Domain.Entities.RolesModule;
 
 #endregion
 
@@ -15,10 +15,10 @@ public interface IUnitOfWork : IDisposable
     void DeAttach(object Entry);
 
     IUserRepository Users { get; }
+    IRoleRepository Roles { get; }
     ILookupsRepository Lookups { get; }
 
 
-    IGenericRepository<Role> Roles { get; }
     IGenericRepository<ApiCallLog> ApiCallLogs { get; }
     IGenericRepository<AppSetting> AppSettings { get; }
     IGenericRepository<MiddlewareLog> MiddlewareLogs { get; }

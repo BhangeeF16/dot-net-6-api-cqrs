@@ -4,7 +4,7 @@ using Domain.Abstractions.IRepositories.IGeneric;
 using Domain.ConfigurationOptions;
 using Domain.Entities.GeneralModule;
 using Domain.Entities.LoggingModule;
-using Domain.Entities.UsersModule;
+using Domain.Entities.RolesModule;
 using Infrastructure.DataAccess.EntityRepositories;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -25,9 +25,9 @@ public class UnitOfWork : IUnitOfWork
     private readonly InfrastructureOptions _infrastructureOptions;
 
     private IUserRepository? _userRepository;
+    private IRoleRepository? _roleRepository;
     private ILookupsRepository? _lookupsRepository;
 
-    private IGenericRepository<Role>? _roleRepository;
     private IGenericRepository<ApiCallLog>? _apiCallLogsRepository;
     private IGenericRepository<AppSetting>? _appsettingsRepository;
     private IGenericRepository<MiddlewareLog>? _middlewareLogsRepository;
@@ -47,7 +47,7 @@ public class UnitOfWork : IUnitOfWork
     #region User and Role Modules
 
     public IUserRepository Users => _userRepository ??= new UserRepository(_context, _infrastructureOptions);
-    public IGenericRepository<Role> Roles => _roleRepository ??= new GenericRepository<Role>(_context, _infrastructureOptions);
+    public IRoleRepository Roles => _roleRepository ??= new RoleRepository(_context, _infrastructureOptions);
 
     #endregion
 
