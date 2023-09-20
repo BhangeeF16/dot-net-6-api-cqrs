@@ -3,6 +3,7 @@ using Domain.Common.Constants;
 using Domain.Common.Exceptions;
 using Domain.Common.Extensions;
 using Domain.ConfigurationOptions;
+using Domain.Entities.UsersModule;
 using MediatR;
 using Utilities.Abstractions;
 using Utilities.Models;
@@ -21,11 +22,7 @@ public class ForgetPasswordCommandHandler : IRequestHandler<ForgetPasswordComman
     {
         try
         {
-            var user = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.Email == request.Email && x.IsActive && !x.IsDeleted);
-            if (user is null)
-            {
-                throw new ClientException("No User Found !", System.Net.HttpStatusCode.BadRequest);
-            }
+            var user = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.Email == request.Email && x.IsActive && !x.IsDeleted) ?? throw new NotFoundException(nameof(User), request.Email);
 
             var newPassword = GetRandomPassword();
             user.Password = PasswordHasher.GeneratePasswordHash(newPassword);
@@ -35,7 +32,7 @@ public class ForgetPasswordCommandHandler : IRequestHandler<ForgetPasswordComman
 
             #region SEND EMAIL
 
-            _emailService.SendEmailAsync(new EmailOptions
+            var emailTask = _emailService.SendEmailAsync(new EmailOptions
             {
                 Subject = $"{_options.Company} - Forget Password Request",
                 IsBodyHtml = true,
@@ -54,7 +51,7 @@ public class ForgetPasswordCommandHandler : IRequestHandler<ForgetPasswordComman
         }
         catch (Exception ex)
         {
-            throw new ClientException("Some thing went wrong", System.Net.HttpStatusCode.BadRequest);
+            throw new BadRequestException("Some thing went wrong");
         }
     }
     private static string GetRandomPassword() => Guid.NewGuid().ToString().Replace("-", "")[..8];

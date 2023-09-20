@@ -12,20 +12,12 @@ public class User : BaseEntity
 {
     public User() : base()
     {
-        DOB = new DateTime(1999, 10, 19, 0, 0, 0, 0, DateTimeKind.Utc);
         LoginAttempts = 0;
-        IsOTPLogin = false;
         IsPasswordChanged = true;
-        IsActive = true;
-        IsDeleted = false;
+        DOB = new DateTime(1999, 10, 19, 0, 0, 0, 0, DateTimeKind.Utc);
     }
 
-    public User(int id, int roleID) : this()
-    {
-        ID = id;
-        fk_RoleID = roleID;
-    }
-
+    public User(int id, int roleID) : this() => (ID, fk_RoleID) = (id, roleID);
 
     [Key]
     public int ID { get; set; }
@@ -54,17 +46,13 @@ public class User : BaseEntity
 
     public DateTime? DOB { get; set; }
     public DateTime? LastPasswordChange { get; set; }
-    public DateTime? LastOtpVerification { get; set; }
 
     [DefaultValue(0)]
     public int LoginAttempts { get; set; }
-    public int LastLoginOTP { get; set; }
 
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
 
-    [DefaultValue(true)]
-    public bool IsOTPLogin { get; set; }
     [DefaultValue(false)]
     public bool IsPasswordChanged { get; set; } = false;
 

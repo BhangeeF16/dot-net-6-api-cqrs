@@ -4,7 +4,6 @@ using Application.Modules.Users.Commands.ForgetPassword;
 using Application.Modules.Users.Commands.ImpersonateUser;
 using Application.Modules.Users.Commands.RegisterUser;
 using Application.Modules.Users.Commands.ResetImpersonatedUser;
-using Application.Modules.Users.Commands.UpdateMyLoginPreference;
 using Application.Modules.Users.Commands.UpdateMyPassword;
 using Application.Modules.Users.Commands.UpdateMyUser;
 using Application.Modules.Users.Models;
@@ -13,7 +12,6 @@ using Application.Modules.Users.Queries.GetMyUser;
 using Application.Modules.Users.Queries.GetUsers;
 using Application.Modules.Users.Queries.Login;
 using Application.Modules.Users.Queries.RefreshToken;
-using Application.Modules.Users.Queries.SendOtpForLogin;
 using Application.Pipeline.Authentication.Extensions;
 using Application.Pipeline.Authorization.Attributes;
 using Domain.Common.Constants;
@@ -131,7 +129,7 @@ public class Users : BaseModule, IModule
 
         endpoints.MapPut("/users/me/update-password",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (ChangePasswordCommand request, IMediator _mediator) =>
+        async (UpdateMyPasswordCommand request, IMediator _mediator) =>
         {
             return await CreateResponseAsync(async () =>
             {
@@ -150,29 +148,6 @@ public class Users : BaseModule, IModule
             MODULE_NAME,
             "Change Password of User",
             "query-params : none. body-params: ChangePasswordCommand, Returns boolean "
-        );
-
-        endpoints.MapPut("/users/me/login-preference",
-        [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (UpdateMyLoginPreferenceCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var result = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "User login preference updated successfully",
-                    Result = result,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<bool>
-        (
-            MODULE_NAME,
-            "Updates A Users Login preference, updates the pasword as wel if provided",
-            "query-params : none, body : UpdateMyLoginPreferenceCommand. Returns bool"
         );
 
         #endregion
@@ -208,29 +183,6 @@ public class Users : BaseModule, IModule
             "header-params: X-EMAIL => username/email and X-PASSWORD => password, query-params : none.Returns Authorized Token Response "
         );
 
-        endpoints.MapGet("/users/send-otp",
-        [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
-        async (string email, int via, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(new SendOtpForLoginQuery(email, via));
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "Success!",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
-        .AddMetaData<bool>
-        (
-            MODULE_NAME,
-            "Sends OTP to user / can be used for resending OTP as well",
-            "query-params : email => email of user, via => SendOtpVia => { Text = 1, Email = 2, }. Returns boolean"
-        );
-
         endpoints.MapGet("/users/exists/{email}",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
         async (string email, IMediator _mediator) =>
@@ -238,7 +190,7 @@ public class Users : BaseModule, IModule
             return await CreateResponseAsync(async () =>
             {
                 var results = await _mediator.Send(new CheckUserExistsByEmailQuery(email));
-                return Results.Ok(new SuccessResponseModel<CheckUserExistsByEmailQueryResponse>
+                return Results.Ok(new SuccessResponseModel<bool>
                 {
                     Message = "Success!",
                     Result = results,
@@ -247,7 +199,7 @@ public class Users : BaseModule, IModule
                 });
             });
         })
-        .AddMetaData<CheckUserExistsByEmailQueryResponse>
+        .AddMetaData<bool>
         (
             MODULE_NAME,
             "User by Email Exists",

@@ -1,4 +1,5 @@
 ﻿using Domain.Abstractions.IRepositories.IGeneric;
+using Domain.Common.Constants;
 using Domain.Common.Exceptions;
 using Domain.Entities.UsersModule;
 using MediatR;
@@ -16,7 +17,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, b
         {
             if (await _unitOfWork.Users.ExistsAsync(x => x.Email.ToLower().Equals(request.Email.ToLower())))
             {
-                throw new ClientException("A Customer already exist with " + request.Email + ". Please try a different email address.", System.Net.HttpStatusCode.BadRequest);
+                throw new BadRequestException("A Customer already exist with " + request.Email + ". Please try a different email address.");
             }
 
             #region Create User in DB
@@ -27,8 +28,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, b
                 LastName = request?.LastName,
                 Email = request?.Email,
                 PhoneNumber = request?.PhoneNumber,
-                IsOTPLogin = true,
-                fk_RoleID = 2,
+                fk_RoleID = RoleLegend.USER,
             };
 
             await _unitOfWork.Users.AddAsync(user);
@@ -40,18 +40,9 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, b
         }
         catch (Exception e)
         {
-            if (e is ArgumentException argEx)
-            {
-                throw new ClientException(argEx.Message, System.Net.HttpStatusCode.InternalServerError);
-            }
-            else if (e is ClientException)
-            {
-                throw;
-            }
-            else
-            {
-                throw new ClientException("Un able to Process", System.Net.HttpStatusCode.InternalServerError);
-            }
+            if (e is ArgumentException argEx) throw new ClientException(argEx.Message, System.Net.HttpStatusCode.InternalServerError);
+            else if (e is ClientException) throw;
+            else throw new ClientException("Un able to Process", System.Net.HttpStatusCode.InternalServerError);
         }
     }
 }

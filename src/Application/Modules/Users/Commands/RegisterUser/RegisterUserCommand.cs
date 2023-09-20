@@ -10,19 +10,6 @@ public class RegisterUserCommand : IRequest<bool>
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string PhoneNumber { get; set; }
-    public int fk_DayID { get; set; }
-    public int fk_TimeSlotID { get; set; }
-    public string? PostCode { get; set; }
-    public DateTime DeliveryDate { get; set; }
-    public string? DeliveryInstructions { get; set; }
-    public string? UnwantedProducts { get; set; }
-
-    public string? ChargebeeToken { get; set; }
-
-    public long TotalAmount { get; set; } = 0;
-    public string? Coupon { get; set; }
-
-
     public class Validator : AbstractValidator<RegisterUserCommand>
     {
         public Validator()
@@ -31,11 +18,6 @@ public class RegisterUserCommand : IRequest<bool>
             RuleFor(c => c.FirstName).ValidateProperty();
             RuleFor(c => c.LastName).ValidateProperty();
             RuleFor(c => c.PhoneNumber).ValidateProperty();
-            RuleFor(c => c.fk_DayID).ValidateProperty();
-            RuleFor(c => c.fk_TimeSlotID).ValidateProperty();
-            RuleFor(c => c.PostCode).ValidateProperty();
-            RuleFor(c => c.DeliveryDate).ValidateProperty();
-            RuleFor(c => c.TotalAmount).ValidateProperty();
         }
     }
 }

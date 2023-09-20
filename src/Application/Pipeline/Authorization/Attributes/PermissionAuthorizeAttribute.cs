@@ -14,7 +14,7 @@ public class PermitAttribute : AuthorizeAttribute
         public PolicyProvider(IOptions<AuthorizationOptions> options) : base(options) { }
         public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
         {
-            if (!policyName.StartsWith(RequirementPolicyExtensions.PolicyPrefix, StringComparison.OrdinalIgnoreCase)) return await base.GetPolicyAsync(policyName);
+            if (!policyName.StartsWith(RequirementPolicyExtensions.POLICY_PREFIX, StringComparison.OrdinalIgnoreCase)) return await base.GetPolicyAsync(policyName);
             return new AuthorizationPolicyBuilder().AddRequirements(policyName.ToRequirement()).Build();
         }
     }

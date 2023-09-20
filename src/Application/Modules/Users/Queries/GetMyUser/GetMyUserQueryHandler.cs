@@ -6,6 +6,7 @@ using Domain.Abstractions.IRepositories.IGeneric;
 using Domain.Common.Constants;
 using Domain.Common.Exceptions;
 using Domain.ConfigurationOptions;
+using Domain.Entities.UsersModule;
 using MediatR;
 
 namespace Application.Modules.Users.Queries.GetMyUser;
@@ -33,11 +34,8 @@ public class GetMyUserQueryHandler : IRequestHandler<GetMyUserQuery, UserDto>
 
     public async Task<UserDto> Handle(GetMyUserQuery request, CancellationToken cancellationToken)
     {
-        var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.Email.ToLower().Equals(_currentUserService.Email.ToLower()) && x.IsActive && !x.IsDeleted);
-        if (!user.IsActive)
-        {
-            throw new ClientException("Your account is temporarily suspended by admin. Please contact support !", System.Net.HttpStatusCode.BadRequest);
-        }
+        var user = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.Email.ToLower().Equals(_currentUserService.Email.ToLower()) && x.IsActive && !x.IsDeleted) ?? throw new NotFoundException(nameof(User), _currentUserService.Email);
+        if (!user.IsActive) throw new BadRequestException("Your account is temporarily suspended by admin. Please contact support !");
 
         var userResponse = _mapper.Map<UserDto>(user);
 

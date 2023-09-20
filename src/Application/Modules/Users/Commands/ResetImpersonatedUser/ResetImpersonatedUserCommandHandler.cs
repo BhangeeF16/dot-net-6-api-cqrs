@@ -14,19 +14,13 @@ public class ResetImpersonatedUserCommandHandler : IRequestHandler<ResetImperson
 
     public async Task<bool> Handle(ResetImpersonatedUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.ID == _currentUserService.LoggedInUser && x.IsActive && !x.IsDeleted);
-        if (user is null)
-        {
-            throw new ClientException("No user found !", System.Net.HttpStatusCode.NotFound);
-        }
+        var user = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.ID == _currentUserService.LoggedInUser && x.IsActive && !x.IsDeleted) ?? throw new NotFoundException("No user found !");
 
-        if (user.RoleIs(RoleLegend.USER))
-        {
-            throw new ClientException("Not allowed !", System.Net.HttpStatusCode.BadRequest);
-        }
+        if (user.RoleIs(RoleLegend.USER)) throw new ForbiddenAccessException("Not allowed !");
 
         user.ImpersonatedAsUser = null;
         user.ImpersonatedAsRole = null;
+        _unitOfWork.Users.Update(user);
         _unitOfWork.Complete();
 
         return true;

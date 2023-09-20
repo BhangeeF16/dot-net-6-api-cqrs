@@ -1,6 +1,4 @@
-﻿using API.Twilio;
-using API.Twilio.Models;
-using Application.Common.Private;
+﻿using Application.Common.Private;
 using Application.Pipeline.Authentication.APIKey;
 using Application.Pipeline.Authentication.Basic;
 using Application.Pipeline.Authentication.Bearer;
@@ -36,8 +34,6 @@ public static class DependencyInjection
         services.AddInfrastructureLayerServices(new InfrastructureOptions(configuration))
                 .AddApplicationLayerServices(new ApplicationOptions(configuration))
                 .AddUtilitiesLayerServices();
-
-        services.AddTwilio(new TwilioOptions(configuration));
 
         services.AddLogging(logging => logging.AddConsole());
         services.AddSingleton<ILoggerFactory, LoggerFactory>();

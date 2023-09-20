@@ -7,11 +7,11 @@ using System.Text;
 namespace Application.Pipeline.Authorization.Extensions;
 public static class RequirementPolicyExtensions
 {
-    internal const string Separator = "_";
-    internal const string PolicyPrefix = "CAN_";
+    internal const string SEPERATOR = "_";
+    internal const string POLICY_PREFIX = "CAN_";
 
     public static PermissionRequirement ToRequirement(this PermissionLevel permissionLevel, string model) => new(model, permissionLevel);
-    public static PermissionRequirement ToRequirement(this RolePermission rolePermission) => new(rolePermission.Model.Name, rolePermission.PermissionLevel);
+    public static PermissionRequirement ToRequirement(this RolePermission rolePermission) => new(rolePermission.Module.Name, rolePermission.PermissionLevel);
     public static PermissionRequirement ToRequirement(this string policyName) => new(policyName.Model(), policyName.PermissionLevel());
 
     public static string Model(this string policyName)
@@ -35,7 +35,7 @@ public static class RequirementPolicyExtensions
     }
 
     public static string PolicyName(this PermissionLevel permissionLevel, string model) 
-        => new StringBuilder().AppendFormat("{0}{2}{1}{3}", PolicyPrefix, Separator, permissionLevel.GetDescription(), model).ToString().ToUpperInvariant();
+        => new StringBuilder().AppendFormat("{0}{2}{1}{3}", POLICY_PREFIX, SEPERATOR, permissionLevel.GetDescription(), model).ToString().ToUpperInvariant();
     public static string PolicyName(this RolePermission rolePermission) 
-        => new StringBuilder().AppendFormat("{0}{2}{1}{3}", PolicyPrefix, Separator, rolePermission.PermissionLevel.GetDescription(), rolePermission.Model.Name).ToString().ToUpperInvariant();
+        => new StringBuilder().AppendFormat("{0}{2}{1}{3}", POLICY_PREFIX, SEPERATOR, rolePermission.PermissionLevel.GetDescription(), rolePermission.Module.Name).ToString().ToUpperInvariant();
 }
