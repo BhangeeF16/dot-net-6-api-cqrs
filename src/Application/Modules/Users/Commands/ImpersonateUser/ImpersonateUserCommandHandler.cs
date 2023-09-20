@@ -14,25 +14,15 @@ public class ImpersonateUserCommandHandler : IRequestHandler<ImpersonateUserComm
 
     public async Task<bool> Handle(ImpersonateUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.ID == _currentUserService.LoggedInUser && x.IsActive && !x.IsDeleted);
-        if (user is null)
-        {
-            throw new ClientException("No user found !", System.Net.HttpStatusCode.NotFound);
-        }
+        var user = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.ID == _currentUserService.LoggedInUser && x.IsActive && !x.IsDeleted) ?? throw new NotFoundException("No user found !");
+        
+        if (user.RoleIs(RoleLegend.USER)) throw new ForbiddenAccessException("Not allowed !");
 
-        if (user.RoleIs(RoleLegend.USER))
-        {
-            throw new ClientException("Not allowed !", System.Net.HttpStatusCode.BadRequest);
-        }
-
-        var userImpersonation = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.Email == request.Email && x.IsActive && !x.IsDeleted);
-        if (userImpersonation is null)
-        {
-            throw new ClientException("Invalid user for impersonation !", System.Net.HttpStatusCode.NotFound);
-        }
+        var userImpersonation = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.Email == request.Email && x.IsActive && !x.IsDeleted) ?? throw new NotFoundException("Invalid user for impersonation !");
 
         user.ImpersonatedAsUser = userImpersonation.ID;
         user.ImpersonatedAsRole = userImpersonation.fk_RoleID;
+        _unitOfWork.Users.Update(user);
         _unitOfWork.Complete();
 
         return true;

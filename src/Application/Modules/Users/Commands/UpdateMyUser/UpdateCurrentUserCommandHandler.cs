@@ -5,7 +5,6 @@ using Domain.Abstractions.IAuth;
 using Domain.Abstractions.IRepositories.IGeneric;
 using Domain.Common.Exceptions;
 using MediatR;
-using System.Net;
 
 namespace Application.Modules.Users.Commands.UpdateMyUser;
 
@@ -23,21 +22,15 @@ public class UpdateCurrentUserCommandHandler : IRequestHandler<UpdateCurrentUser
     public async Task<UserDto> Handle(UpdateCurrentUserCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.ID;
-        var thisUser = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.ID == userId && x.IsActive && !x.IsDeleted);
-        if (thisUser == null)
-        {
-            throw new ClientException("No User Found", HttpStatusCode.NotFound);
-        }
-        else
-        {
-            thisUser.FirstName = request.FirstName;
-            thisUser.LastName = request.LastName;
-            thisUser.Email = request.Email;
-            thisUser.PhoneNumber = request.PhoneNumber.FormatPhoneNumber();
+        var user = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.ID == userId && x.IsActive && !x.IsDeleted) ?? throw new NotFoundException("No User Found");
 
-            _unitOfWork.Complete();
-        }
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
+        user.Email = request.Email;
+        user.PhoneNumber = request.PhoneNumber.FormatPhoneNumber();
+        _unitOfWork.Users.Update(user);
+        _unitOfWork.Complete();
 
-        return _mapper.Map<UserDto>(thisUser);
+        return _mapper.Map<UserDto>(user);
     }
 }
