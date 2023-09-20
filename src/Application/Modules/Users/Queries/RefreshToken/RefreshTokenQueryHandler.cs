@@ -1,8 +1,8 @@
 ﻿using Application.Pipeline.Authentication.Extensions;
 using Domain.Abstractions.IAuth;
 using Domain.Abstractions.IRepositories.IGeneric;
-using Domain.Common.Constants;
 using Domain.Common.Exceptions;
+using Domain.Entities.UsersModule;
 using Domain.Models.Auth;
 using MediatR;
 using System.Security.Claims;
@@ -26,31 +26,16 @@ public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, UserT
     public async Task<UserTokens> Handle(RefreshTokenQuery request, CancellationToken cancellationToken)
     {
         string? refreshToken = request.RefreshToken;
-        var principal = _jwtTokenGenerator.GetPrincipalFromExpiredToken(_currentUserService.AccessToken.ExtractToken());
-        if (principal == null)
-        {
-            throw new ClientException("Invalid access token or refresh token", System.Net.HttpStatusCode.BadRequest);
-        }
+        var principal = _jwtTokenGenerator.GetPrincipalFromExpiredToken(_currentUserService.AccessToken.ExtractToken()) ?? throw new BadRequestException("Invalid access token or refresh token");
 
         var claims = principal.Identities.First()?.Claims?.ToList() ?? new List<Claim>();
         string email = claims?.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email, StringComparison.OrdinalIgnoreCase))?.Value.ToLower() ?? string.Empty;
 
-        var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()) && x.IsActive && !x.IsDeleted);
+        var user = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.Email.ToLower().Equals(email.ToLower()) && x.IsActive && !x.IsDeleted) ?? throw new NotFoundException(nameof(User), email);
 
-        if (string.IsNullOrEmpty(user.RefreshToken) || user.RefreshTokenExpiryTime == null || !user.RefreshTokenExpiryTime.HasValue)
-        {
-            throw new ClientException("No Tokens found, Please try logging out of the system and log in again", System.Net.HttpStatusCode.BadRequest);
-        }
-
-        if (user.RefreshToken != refreshToken)
-        {
-            throw new ClientException("Invalid refresh token", System.Net.HttpStatusCode.BadRequest);
-        }
-
-        if (!(user.RefreshTokenExpiryTime.Value.CompareTo(DateTime.UtcNow) >= 0))
-        {
-            throw new ClientException("Refresh token is expired, Please try logging out of the system and log in again", System.Net.HttpStatusCode.BadRequest);
-        }
+        if (string.IsNullOrEmpty(user.RefreshToken) || user.RefreshTokenExpiryTime == null || !user.RefreshTokenExpiryTime.HasValue) throw new BadRequestException("No Tokens found, Please try logging out of the system and log in again");
+        if (user.RefreshToken != refreshToken) throw new BadRequestException("Invalid refresh token");
+        if (!(user.RefreshTokenExpiryTime.Value.CompareTo(DateTime.UtcNow) >= 0)) throw new BadRequestException("Refresh token is expired, Please try logging out of the system and log in again");
 
         var userTokens = _jwtTokenGenerator.GenerateToken(user);
 

@@ -1,8 +1,6 @@
-﻿using MediatR;
+﻿namespace Application.Modules.Users.Queries.CheckUser;
 
-namespace Application.Modules.Users.Queries.CheckUser;
-
-public class CheckUserExistsByEmailQueryResponse : IRequest<bool>
+public class CheckUserExistsByEmailQueryResponse
 {
     public CheckUserExistsByEmailQueryResponse(bool? doesExist, bool? isPaswordLogin) => (DoesExist, IsPaswordLogin) = (doesExist, isPaswordLogin);
 

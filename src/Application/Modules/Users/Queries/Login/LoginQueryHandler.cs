@@ -2,6 +2,7 @@
 using Domain.Abstractions.IRepositories.IGeneric;
 using Domain.Common.Exceptions;
 using Domain.Common.Extensions;
+using Domain.Entities.UsersModule;
 using Domain.Models.Auth;
 using MediatR;
 
@@ -16,22 +17,11 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, UserTokens>
 
     public async Task<UserTokens> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(x => x.Email.ToLower().Equals(request.Email.ToLower()) && x.IsActive && !x.IsDeleted);
-        UserTokens userTokens = null;
-        if (user.IsOTPLogin)
-        {
-            var sentOtp = user.LastLoginOTP;
-            var verificationTime = Convert.ToDateTime(user.LastOtpVerification).AddMinutes(2);
-            if (verificationTime < DateTime.UtcNow) throw new ClientException("OTP Expired", System.Net.HttpStatusCode.BadRequest);
-            else if (sentOtp != Convert.ToInt32(request.Password)) throw new ClientException("Invalid OTP", System.Net.HttpStatusCode.BadRequest);
-            else userTokens = _jwtTokenGenerator.GenerateToken(user);
-        }
-        else
-        {
-            if (PasswordHasher.VerifyHash(request.Password, user.Password ?? string.Empty)) userTokens = _jwtTokenGenerator.GenerateToken(user);
-            else throw new ClientException("Invalid Credentials", System.Net.HttpStatusCode.BadRequest);
-        }
+        var user = await _unitOfWork.Users.GetFirstOrDefaultNoTrackingAsync(x => x.Email.ToLower().Equals(request.Email.ToLower()) && x.IsActive && !x.IsDeleted) ?? throw new NotFoundException(nameof(User), request.Email);
 
+        if (!PasswordHasher.VerifyHash(request.Password, user.Password ?? string.Empty)) throw new BadRequestException("Invalid Credentials");
+
+        var userTokens = _jwtTokenGenerator.GenerateToken(user);
         user.RefreshToken = userTokens.RefreshToken;
         user.RefreshTokenExpiryTime = userTokens.RefreshTokenExpiryTime;
         user.LoginAttempts++;
