@@ -25,9 +25,9 @@ public class PermissionRequirementHandler : AuthorizationHandler<PermissionRequi
         if (user.HasClaim(claim => claim.Type == ClaimTypes.Role))
         {
             var roleID = Convert.ToInt32(user.Claims?.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Role, StringComparison.OrdinalIgnoreCase))?.Value ?? string.Empty);
-            var role = await _unitOfWork.Roles.GetFirstOrDefaultNoTrackingAsync(x => x.ID == roleID, x => x.Permissions, x => x.Permissions.Select(y => y.Model));
+            var role = await _unitOfWork.Roles.GetFirstOrDefaultNoTrackingAsync(x => x.ID == roleID, x => x.Permissions, x => x.Permissions.Select(y => y.Module));
 
-            if (role.Permissions != null && role.Permissions.Any()) return role.Permissions.Any(x => x.PermissionLevel == requirement.PermissionLevel && x.Model.Name == requirement.Model);
+            if (role.Permissions != null && role.Permissions.Any()) return role.Permissions.Any(x => x.PermissionLevel == requirement.PermissionLevel && x.Module.Name == requirement.Model);
         }
         return false;
     }

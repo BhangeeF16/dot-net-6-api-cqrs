@@ -24,7 +24,7 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
 
     #region Methods
 
-    public HashSet<RolePermission> GetRolePermissions() => Permissions.TableNoTracking.Include(x => x.Role).Include(x => x.Model).ToHashSet(new RolePermission.EqualityComparer());
+    public HashSet<RolePermission> GetRolePermissions() => Permissions.TableNoTracking.Include(x => x.Role).Include(x => x.Module).ToHashSet(new RolePermission.EqualityComparer());
 
     #endregion
 }
