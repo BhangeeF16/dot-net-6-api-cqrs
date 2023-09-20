@@ -1,6 +1,7 @@
 ﻿using Domain.Common.Exceptions;
 using ExcelDataReader;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Data;
 using System.Text;
@@ -10,6 +11,13 @@ namespace Domain.Common.Extensions;
 
 public static class CollectionExtensions
 {
+    public static T GetService<T>(this IServiceCollection services)
+    {
+        using (var provider = services.BuildServiceProvider())
+        {
+            return provider.GetRequiredService<T>() ?? default;
+        }
+    }
     public static List<T> GetListWhere<T>(Func<T, bool> predicate, params T[] entities)
     {
         var list = new List<T>();

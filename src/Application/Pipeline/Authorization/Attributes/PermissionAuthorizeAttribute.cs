@@ -7,7 +7,8 @@ namespace Application.Pipeline.Authorization.Attributes;
 
 public class PermitAttribute : AuthorizeAttribute
 {
-    public PermitAttribute(PermissionLevel Level, string Model) => Policy = Level.PolicyName(Model);
+    public PermitAttribute(string policy) : base(policy) { }
+    public PermitAttribute(PermissionLevel level, string module) : base(level.PolicyName(module)) { }
 
     public class PolicyProvider : DefaultAuthorizationPolicyProvider
     {

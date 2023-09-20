@@ -19,7 +19,9 @@ public static class AuthLegend
     public static class Role
     {
         public const string APPLICATION_ADMIN = "1";
-        public const string CUSTOMER = "2";
         public const string CUSTOMER_SUPPORT = "3";
+        public const string ADMINS_ONLY = "1,3";
+
+        public const string CUSTOMER = "2";
     }
 }

@@ -52,27 +52,17 @@ public class BaseModule
                 StatusCode = customEx?.StatusCode ?? HttpStatusCode.InternalServerError,
                 Success = false
             };
-            switch (customEx.StatusCode)
+
+            response = customEx.StatusCode switch
             {
-                case HttpStatusCode.BadRequest:
-                    response = Results.BadRequest(ErrorModel);
-                    break;
-                case HttpStatusCode.NotFound:
-                    response = Results.NotFound(ErrorModel);
-                    break;
-                case HttpStatusCode.UnprocessableEntity:
-                    response = Results.UnprocessableEntity(ErrorModel);
-                    break;
-                case HttpStatusCode.NotModified:
-                    response = Results.Conflict(ErrorModel);
-                    break;
-                case HttpStatusCode.MethodNotAllowed:
-                    response = Results.Extensions.MethodNotAllowed(ErrorModel);
-                    break;
-                default:
-                    response = Results.Extensions.InternalServerProblem(ErrorModel);
-                    break;
-            }
+                HttpStatusCode.NotFound => Results.NotFound(ErrorModel),
+                HttpStatusCode.NotModified => Results.Conflict(ErrorModel),
+                HttpStatusCode.BadRequest => Results.BadRequest(ErrorModel),
+                HttpStatusCode.UnprocessableEntity => Results.UnprocessableEntity(ErrorModel),
+                HttpStatusCode.Forbidden => Results.Extensions.ForbiddenAccessProblem(ErrorModel),
+                HttpStatusCode.MethodNotAllowed => Results.Extensions.MethodNotAllowed(ErrorModel),
+                _ => Results.Extensions.InternalServerProblem(ErrorModel),
+            };
         }
         catch (ValidationException ex)
         {
@@ -145,7 +135,6 @@ public class BaseModule
                 Result = new ErrorDetailResponseModel()
                 {
                     ExceptionMessage = dbEx?.Message,
-                    //StackTrace = dbEx?.StackTrace,
                     ExceptionMessageDetail = dbEx?.InnerException?.Message,
                     ReferenceErrorCode = dbEx?.HResult.ToString(),
                     ValidationErrors = null
@@ -171,27 +160,17 @@ public class BaseModule
                 StatusCode = customEx?.StatusCode ?? HttpStatusCode.InternalServerError,
                 Success = false
             };
-            switch (customEx.StatusCode)
+
+            response = customEx.StatusCode switch
             {
-                case HttpStatusCode.BadRequest:
-                    response = Results.BadRequest(ErrorModel);
-                    break;
-                case HttpStatusCode.NotFound:
-                    response = Results.NotFound(ErrorModel);
-                    break;
-                case HttpStatusCode.UnprocessableEntity:
-                    response = Results.UnprocessableEntity(ErrorModel);
-                    break;
-                case HttpStatusCode.NotModified:
-                    response = Results.Conflict(ErrorModel);
-                    break;
-                case HttpStatusCode.MethodNotAllowed:
-                    response = Results.Extensions.MethodNotAllowed(ErrorModel);
-                    break;
-                default:
-                    response = Results.Extensions.InternalServerProblem(ErrorModel);
-                    break;
-            }
+                HttpStatusCode.NotFound => Results.NotFound(ErrorModel),
+                HttpStatusCode.NotModified => Results.Conflict(ErrorModel),
+                HttpStatusCode.BadRequest => Results.BadRequest(ErrorModel),
+                HttpStatusCode.UnprocessableEntity => Results.UnprocessableEntity(ErrorModel),
+                HttpStatusCode.Forbidden => Results.Extensions.ForbiddenAccessProblem(ErrorModel),
+                HttpStatusCode.MethodNotAllowed => Results.Extensions.MethodNotAllowed(ErrorModel),
+                _ => Results.Extensions.InternalServerProblem(ErrorModel),
+            };
         }
         catch (ValidationException ex)
         {
@@ -258,7 +237,7 @@ public static class ResultExtensions
     {
         return Results.Problem(new ProblemDetails()
         {
-            Status = 500,
+            Status = ((int)HttpStatusCode.InternalServerError),
             Title = errorResponseModel?.Message,
             Detail = errorResponseModel?.Result?.ExceptionMessage,
             Instance = errorResponseModel?.Result?.ReferenceErrorCode,
@@ -269,7 +248,18 @@ public static class ResultExtensions
     {
         return Results.Problem(new ProblemDetails()
         {
-            Status = 401,
+            Status = ((int)HttpStatusCode.Unauthorized),
+            Title = errorResponseModel?.Message,
+            Detail = errorResponseModel?.Result?.ExceptionMessage,
+            Instance = errorResponseModel?.Result?.ReferenceErrorCode,
+            Type = errorResponseModel?.Result?.ReferenceErrorCode,
+        });
+    }
+    public static IResult ForbiddenAccessProblem(this IResultExtensions resultExtensions, ErrorResponseModel errorResponseModel)
+    {
+        return Results.Problem(new ProblemDetails()
+        {
+            Status = ((int)HttpStatusCode.Forbidden),
             Title = errorResponseModel?.Message,
             Detail = errorResponseModel?.Result?.ExceptionMessage,
             Instance = errorResponseModel?.Result?.ReferenceErrorCode,
@@ -280,7 +270,7 @@ public static class ResultExtensions
     {
         return Results.Problem(new ProblemDetails()
         {
-            Status = 405,
+            Status = ((int)HttpStatusCode.MethodNotAllowed),
             Title = errorResponseModel?.Message,
             Detail = errorResponseModel?.Result?.ExceptionMessage,
             Instance = errorResponseModel?.Result?.ReferenceErrorCode,

@@ -12,13 +12,12 @@ builder.WebHost.ConfigureKestrel(options =>
     options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(30); // Set the request timeout (e.g., 5 minutes)
 });
 
+builder.Services.InjectDependencies(builder.Configuration, builder.Environment);
+
 // Add services to the container.
 builder.Services.RegisterModules();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerOptions(builder.Environment);
-
-builder.Services.InjectDependencies(builder.Configuration, builder.Environment);
 builder.Services.AddHealthChecks();
 
 builder.Services.AddCors(p => p.AddPolicy("corsapp", cors =>

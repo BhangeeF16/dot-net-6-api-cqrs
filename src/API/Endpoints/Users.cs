@@ -21,9 +21,7 @@ using Domain.Models.Auth;
 using Domain.Models.Pagination;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace API.Endpoints;
 
@@ -36,16 +34,10 @@ public class Users : BaseModule, IModule
 
         endpoints.MapGet("/ping",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        () => Results.Ok(new SuccessResponseModel<bool>
-        {
-            Message = "Pong!",
-            Result = true,
-            StatusCode = HttpStatusCode.OK,
-            Success = true
-        }))
+        () => Results.Ok(new SuccessResponseModel<bool>(true, "Pong!")))
         .AddMetaData<bool>
         (
-            "Health",
+            "HEALTH",
             "Checks health with Authorization",
             "query-params : none. Returns 'Pong' "
         );
@@ -56,20 +48,10 @@ public class Users : BaseModule, IModule
 
         endpoints.MapGet("/users/me",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var result = await _mediator.Send(new GetMyUserQuery());
-                return Results.Ok(new SuccessResponseModel<UserDto>
-                {
-                    Message = "user fetched successfully",
-                    Result = result,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        async (IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<UserDto>(await mediator.Send(new GetMyUserQuery()), "profile fetched successfully"))
+        ))
         .AddMetaData<UserDto>
         (
             MODULE_NAME,
@@ -79,23 +61,10 @@ public class Users : BaseModule, IModule
 
         endpoints.MapGet("/users/me/refresh-token",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (
-                [Required]
-                [FromHeader(Name = HeaderLegend.REFRESH_TOKEN)]
-                string refreshToken, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var result = await _mediator.Send(new RefreshTokenQuery(refreshToken));
-                return Results.Ok(new SuccessResponseModel<UserTokens>
-                {
-                    Message = "Access Token refreshed successfully",
-                    Result = result,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        async ([Required, Header(HeaderLegend.REFRESH_TOKEN)] string refreshToken, IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<UserTokens>(await mediator.Send(new RefreshTokenQuery(refreshToken)), "Access Token refreshed successfully"))
+        ))
         .AddMetaData<UserTokens>
         (
             MODULE_NAME,
@@ -105,20 +74,10 @@ public class Users : BaseModule, IModule
 
         endpoints.MapPut("/users/me",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (UpdateCurrentUserCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<UserDto>
-                {
-                    Message = "Profile updated successfully",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        async (UpdateCurrentUserCommand request, IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<UserDto>(await mediator.Send(request), "Profile updated successfully"))
+        ))
         .Accepts<UpdateCurrentUserCommand>("multipart/form-data")
         .AddMetaData<UserDto>
         (
@@ -129,20 +88,10 @@ public class Users : BaseModule, IModule
 
         endpoints.MapPut("/users/me/update-password",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
-        async (UpdateMyPasswordCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "User Password updated Successfully",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        async (UpdateMyPasswordCommand request, IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<bool>(await mediator.Send(request), "User Password updated Successfully"))
+        ))
         .AddMetaData<bool>
         (
             MODULE_NAME,
@@ -156,26 +105,15 @@ public class Users : BaseModule, IModule
 
         endpoints.MapGet("/users/login",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
-        async (
-                [Required]
-                [FromHeader(Name = HeaderLegend.EMAIL)]
-                string email,
-                [Required]
-                [FromHeader(Name = HeaderLegend.PASSWORD)]
-                string password, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var results = await _mediator.Send(new LoginQuery(email, password));
-                return Results.Ok(new SuccessResponseModel<UserTokens>
-                {
-                    Message = "Success!",
-                    Result = results,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        async
+        (
+            [Required, Header(HeaderLegend.EMAIL)] string email,
+            [Required, Header(HeaderLegend.PASSWORD)] string password,
+            IMediator mediator
+        ) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<UserTokens>(await mediator.Send(new LoginQuery(email, password))))
+        ))
         .AddMetaData<UserTokens>
         (
             MODULE_NAME,
@@ -185,20 +123,10 @@ public class Users : BaseModule, IModule
 
         endpoints.MapGet("/users/exists/{email}",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
-        async (string email, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var results = await _mediator.Send(new CheckUserExistsByEmailQuery(email));
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "Success!",
-                    Result = results,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        async (string email, IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<bool>(await mediator.Send(new CheckUserExistsByEmailQuery(email))))
+        ))
         .AddMetaData<bool>
         (
             MODULE_NAME,
@@ -208,20 +136,10 @@ public class Users : BaseModule, IModule
 
         endpoints.MapPost("/users/register",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
-        async (RegisterUserCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "User Signed up Successfully",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        async (RegisterUserCommand request, IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<bool>(await mediator.Send(request), "User Signed up Successfully"))
+        ))
         .AddMetaData<string>
         (
             MODULE_NAME,
@@ -231,25 +149,15 @@ public class Users : BaseModule, IModule
 
         endpoints.MapPost("/users/forget-password",
         [Authorize(AuthenticationSchemes = AuthLegend.Scheme.API_KEY)]
-        async (ForgetPasswordCommand request, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var results = await _mediator.Send(request);
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "Success!",
-                    Result = results,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        async (ForgetPasswordCommand request, IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<bool>(await mediator.Send(request)))
+        ))
         .AddMetaData<bool>
         (
             MODULE_NAME,
             "use this if user forgets password ",
-            "query-params : none. body-params: ForgetPasswordRequest, Returns boolean "
+            "query-params : none. body-params: ForgetPasswordRequest, Returns boolean"
         );
 
         #endregion
@@ -257,22 +165,11 @@ public class Users : BaseModule, IModule
         #region ADMINS ONLY
 
         endpoints.MapGet("/users/{role}/{filterType}",
-        [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER, Policy = AuthLegend.Policy.ADMINS_ONLY)]
-        [Permit(PermissionLevel.View, MODULE_NAME)]
-        async (Pagination pagination, int? role, int? filterType, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var results = await _mediator.Send(new GetUsersQuery(pagination, role, filterType));
-                return Results.Ok(new SuccessResponseModel<PaginatedList<GetUsersResponse>>
-                {
-                    Message = "Success!",
-                    Result = results,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        [Permit(PermissionLevel.View, MODULE_NAME, AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
+        async (Pagination pagination, int? role, int? filterType, IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<PaginatedList<GetUsersResponse>>(await mediator.Send(new GetUsersQuery(pagination, role, filterType))))
+        ))
         .AddMetaData<PaginatedList<GetUsersResponse>>
         (
             MODULE_NAME,
@@ -281,25 +178,11 @@ public class Users : BaseModule, IModule
         );
 
         endpoints.MapGet("/user/impersonate",
-        [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER, Policy = AuthLegend.Policy.ADMINS_ONLY)]
-        [Permit(PermissionLevel.Impersonate, MODULE_NAME)]
-        async (
-                [Required]
-                [FromHeader(Name = HeaderLegend.EMAIL)]
-                string email, IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(new ImpersonateUserCommand(email));
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "User impersonated successfully.",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        [Permit(PermissionLevel.Impersonate, MODULE_NAME, AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
+        async ([Required, Header(HeaderLegend.EMAIL)] string email, IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<bool>(await mediator.Send(new ImpersonateUserCommand(email))))
+        ))
         .AddMetaData<bool>
         (
             MODULE_NAME,
@@ -308,22 +191,11 @@ public class Users : BaseModule, IModule
         );
 
         endpoints.MapGet("/user/reset-impersonation",
-        [Authorize(AuthenticationSchemes = AuthLegend.Scheme.BEARER, Policy = AuthLegend.Policy.ADMINS_ONLY)]
-        [Permit(PermissionLevel.Impersonate, MODULE_NAME)]
-        async (IMediator _mediator) =>
-        {
-            return await CreateResponseAsync(async () =>
-            {
-                var response = await _mediator.Send(new ResetImpersonatedUserCommand());
-                return Results.Ok(new SuccessResponseModel<bool>
-                {
-                    Message = "User impersonation reset successfully.",
-                    Result = response,
-                    StatusCode = HttpStatusCode.OK,
-                    Success = true
-                });
-            });
-        })
+        [Permit(PermissionLevel.Impersonate, MODULE_NAME, AuthenticationSchemes = AuthLegend.Scheme.BEARER)]
+        async (IMediator mediator) => await CreateResponseAsync
+        (
+            async () => Results.Ok(new SuccessResponseModel<bool>(await mediator.Send(new ResetImpersonatedUserCommand())))
+        ))
         .AddMetaData<bool>
         (
             MODULE_NAME,

@@ -1,5 +1,7 @@
 ﻿using Application.Common.Constants;
 using Application.Pipeline.Authentication.Extensions;
+using Domain.Common.Extensions;
+using Domain.ConfigurationOptions;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -10,12 +12,14 @@ namespace API.Private.Swagger
     {
         public static IServiceCollection AddSwaggerOptions(this IServiceCollection services, IWebHostEnvironment env)
         {
+            var options = services.GetService<ApplicationOptions>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "FarmersPick.API",
+                    Title = $"{options.Company}.API",
                     Description = $"{(env.IsDevelopment() ? "Development" : env.IsProduction() ? "Production" : "Staging")} Environment"
                 });
 
@@ -58,7 +62,6 @@ namespace API.Private.Swagger
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
-            //services.AddFluentValidationRulesToSwagger();
 
             return services;
         }
