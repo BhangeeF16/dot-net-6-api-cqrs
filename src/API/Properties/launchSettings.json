@@ -1,49 +1,45 @@
 {
   "profiles": {
-    "API.Development": {
+    "API.LOCAL": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Local",
+        "DOTNET_ENVIRONMENT": "Local"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7088;http://localhost:5088"
+    },
+    "API.DEVELOPMENT": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_ENVIRONMENT": "Development",
-        "AZURE_TENANT_ID": "",
-        "AZURE_CLIENT_ID": "",
-        "AZURE_CLIENT_SECRET": "",
-        "AZURE_KEY_VAULT": "farmerspick-dev",
-        "AZURE_KEY_VAULT_SECRET_NAME": "app-settings"
+        "DOTNET_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7088;http://localhost:5088"
     },
-    "API.Staging": {
+    "API.STAGING": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Staging",
-        "DOTNET_ENVIRONMENT": "Staging",
-        "AZURE_TENANT_ID": "",
-        "AZURE_CLIENT_ID": "",
-        "AZURE_CLIENT_SECRET": "",
-        "AZURE_KEY_VAULT": "farmerspick-staging",
-        "AZURE_KEY_VAULT_SECRET_NAME": "app-settings"
+        "DOTNET_ENVIRONMENT": "Staging"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7088;http://localhost:5088"
     },
-    "API.Production": {
+    "API.PRODUCTION": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production",
-        "DOTNET_ENVIRONMENT": "Production",
-        "AZURE_TENANT_ID": "",
-        "AZURE_CLIENT_ID": "",
-        "AZURE_CLIENT_SECRET": "",
-        "AZURE_KEY_VAULT": "farmerspick-production",
-        "AZURE_KEY_VAULT_SECRET_NAME": "app-settings"
+        "DOTNET_ENVIRONMENT": "Production"
       },
       "applicationUrl": "https://localhost:7088;http://localhost:5088"
     }
