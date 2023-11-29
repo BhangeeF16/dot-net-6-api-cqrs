@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Modules.Users.Queries.CheckUser;
 
-public class CheckUserExistsByEmailQuery : IRequest<CheckUserExistsByEmailQueryResponse>
+public class CheckUserExistsByEmailQuery : IRequest<bool>
 {
     public string? Email { get; set; }
     public CheckUserExistsByEmailQuery(string? email) => Email = email;
