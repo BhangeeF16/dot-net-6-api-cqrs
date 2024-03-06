@@ -23,7 +23,7 @@ Here're some of the project's best features:
 
 </br><h2>🛠️ Installation Steps:</h2>
 
-<p>1. Clone the repo ```git clone https://github.com/BhangeeF16/dot-net-6-api-controller-base.git``` </p>
+<p>1. Clone the repo ```git clone https://github.com/BhangeeF16/dot-net-6-api-cqrs.git``` </p>
 
 <p>2. Configure necessary environment variables such as SMTP credentials, Twilio API keys, etc.</p>
 
